@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1e3a8a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>Site Hisab / साइट हिसाब</title>
+<style>
+  * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+  body { margin: 0; background: #f1f5f9; color: #0f172a; padding-bottom: 75px; }
+  header { background: #1e3a8a; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+  header h1 { margin: 0; font-size: 18px; }
+  .hdr-btns { display: flex; gap: 8px; align-items: center; }
+  .lang-btn { background: #fff; color: #1e3a8a; border: none; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .logout-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 10px; border-radius: 20px; font-weight: 600; font-size: 12px; cursor: pointer; }
+  .container { padding: 12px; max-width: 600px; margin: auto; }
+  .card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin: 8px 0 4px; }
+  input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; background: #fff; }
+  .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+  .btn-primary { background: #1e3a8a; color: #fff; }
+  .btn-green { background: #16a34a; color: #fff; }
+  .att-row { display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #e2e8f0; padding: 10px 0; }
+  .att-row:last-child { border-bottom: none; }
+  .att-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .att-btns { display: flex; gap: 6px; }
+  .st-btn { flex: 1; padding: 10px 0; border: 2px solid #cbd5e1; border-radius: 8px; background: #fff; font-weight: 700; cursor: pointer; }
+  .st-btn.active-P { background: #16a34a; color: #fff; border-color: #16a34a; }
+  .st-btn.active-H { background: #d97706; color: #fff; border-color: #d97706; }
+  .st-btn.active-A { background: #dc2626; color: #fff; border-color: #dc2626; }
+  .ot-input { width: 85px; padding: 8px; text-align: center; font-size: 14px; }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #cbd5e1; display: flex; z-index: 10; }
+  nav button { flex: 1; padding: 12px 4px; border: none; background: none; font-size: 12px; font-weight: 700; color: #64748b; cursor: pointer; }
+  nav button.active { color: #1e3a8a; border-top: 3px solid #1e3a8a; }
+  .hidden { display: none !important; }
+  .badge { font-size: 12px; background: #e2e8f0; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+  .hisab-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0; gap: 8px; }
+  .hisab-row:last-child { border-bottom: none; }
+  .wa-btn { background: #25D366; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; white-space: nowrap; }
+  #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.85); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 18px; color: #1e3a8a; z-index: 99; }
+</style>
+</head>
+<body>
+
+<div id="loader" class="hidden">Loading...</div>
+
+<header>
+  <h1 data-t="title">Site Hisab</h1>
+  <div class="hdr-btns">
+    <button class="lang-btn" onclick="toggleLang()" id="langBtn">हिंदी</button>
+    <button class="logout-btn hidden" id="logoutBtn" onclick="doLogout()" data-t="logout">Logout</button>
+  </div>
+</header>
+
+<!-- LOGIN SCREEN -->
+<div id="loginView" class="container">
+  <div class="card">
+    <h2 data-t="loginTitle" style="margin-top:0">Supervisor / Owner Login</h2>
+    <label data-t="yourName">Your Name (Munshi / Owner)</label>
+    <input id="userName" placeholder="e.g. Ramesh">
+    <label data-t="enterPin">Enter PIN</label>
+    <input id="userPin" type="password" inputmode="numeric" placeholder="****">
+    <button class="btn btn-primary" onclick="doLogin()" data-t="loginBtn">Login</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appView" class="container hidden">
+
+  <!-- TAB 1: ATTENDANCE -->
+  <div id="tab-att">
+    <div class="card">
+      <div style="display:flex; gap:8px;">
+        <div style="flex:1">
+          <label data-t="date">Date</label>
+          <input type="date" id="attDate" onchange="renderAttendance()">
+        </div>
+        <div style="flex:1">
+          <label data-t="site">Site</label>
+          <select id="attSite" onchange="renderAttendance()"></select>
+        </div>
+      </div>
+    </div>
+    <div class="card" id="attList"></div>
+    <button class="btn btn-green" onclick="saveAttendance()" data-t="saveAtt">Save Attendance</button>
+  </div>
+
+  <!-- TAB 2: WORKERS & SITES -->
+  <div id="tab-workers" class="hidden">
+    <div class="card">
+      <h3 style="margin-top:0" data-t="addWorker">Add Worker</h3>
+      <label data-t="name">Worker Name</label>
+      <input id="wName">
+      <div style="display:flex; gap:8px;">
+        <div style="flex:1">
+          <label data-t="role">Role</label>
+          <select id="wRole">
+            <option value="Helper">Helper / मज़दूर</option>
+            <option value="Mistri">Mistri / मिस्त्री</option>
+            <option value="Operator">Operator / ऑपरेटर</option>
+            <option value="Supervisor">Munshi / मुंशी</option>
+          </select>
+        </div>
+        <div style="flex:1">
+          <label data-t="wage">Daily Wage (₹)</label>
+          <input id="wWage" type="number" inputmode="numeric" placeholder="500">
+        </div>
+      </div>
+      <label data-t="site">Site</label>
+      <select id="wSite"></select>
+      <label data-t="phone">Phone (Optional)</label>
+      <input id="wPhone" type="tel">
+      <button class="btn btn-primary" onclick="addWorker()" data-t="saveWorker">Add Worker</button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0" data-t="addSite">Add New Site</h3>
+      <input id="newSiteName" placeholder="e.g. NH-28 Road Work">
+      <button class="btn btn-primary" onclick="addSite()" data-t="saveSite">Add Site</button>
+    </div>
+  </div>
+
+  <!-- TAB 3: KHARCHI / PAYMENTS -->
+  <div id="tab-pay" class="hidden">
+    <div class="card">
+      <h3 style="margin-top:0" data-t="addPay">Record Kharchi / Payment</h3>
+      <label data-t="selectWorker">Select Worker</label>
+      <select id="pWorker"></select>
+      <label data-t="amount">Amount (₹)</label>
+      <input id="pAmount" type="number" inputmode="numeric">
+      <label data-t="note">Note (Cash / UPI / Kharchi)</label>
+      <input id="pNote" placeholder="Weekly Kharchi">
+      <button class="btn btn-green" onclick="addPayment()" data-t="savePay">Save Payment</button>
+    </div>
+  </div>
+
+  <!-- TAB 4: HISAB SUMMARY -->
+  <div id="tab-hisab" class="hidden">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0" data-t="hisabTitle">Balance Summary</h3>
+        <button class="lang-btn" style="background:#e2e8f0;color:#0f172a" onclick="loadData()" data-t="refresh">Refresh</button>
+      </div>
+      <div id="hisabList" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+</div>
+
+<nav id="bottomNav" class="hidden">
+  <button class="active" onclick="showTab('att', this)" data-t="navAtt">Attendance</button>
+  <button onclick="showTab('workers', this)" data-t="navWorkers">Workers</button>
+  <button onclick="showTab('pay', this)" data-t="navPay">Kharchi</button>
+  <button onclick="showTab('hisab', this)" data-t="navHisab">Hisab</button>
+</nav>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxE-TwVPQYGjvHRZ30EnC0-7zUsbNhGGIQMSCtVMCVDZ6XbQXLh1VsNrDjdcghMczpy/exec";
+
+const dict = {
+  en: {
+    title: "Site Hisab", logout: "Logout", loginTitle: "Supervisor / Owner Login", yourName: "Your Name", enterPin: "Enter PIN", loginBtn: "Login",
+    date: "Date", site: "Site", saveAtt: "Save Attendance", addWorker: "Add New Worker", name: "Worker Name", role: "Role",
+    wage: "Daily Wage (₹)", phone: "Phone (Optional)", saveWorker: "Add Worker", addSite: "Add New Site", saveSite: "Add Site",
+    addPay: "Record Kharchi / Payment", selectWorker: "Select Worker", amount: "Amount (₹)", note: "Note (Cash / UPI)",
+    savePay: "Save Payment", hisabTitle: "Worker Balance (Hisab)", refresh: "Refresh",
+    navAtt: "Attendance", navWorkers: "Workers", navPay: "Kharchi", navHisab: "Hisab",
+    P: "P", H: "Half", A: "A", earned: "Earned", paid: "Paid", bal: "Balance", saved: "Saved!",
+    netErr: "Network error. Check internet and try again."
+  },
+  hi: {
+    title: "साइट हिसाब", logout: "लॉगआउट", loginTitle: "मुंशी / मालिक लॉगिन", yourName: "आपका नाम", enterPin: "पिन डालें", loginBtn: "लॉगिन करें",
+    date: "तारीख", site: "साइट", saveAtt: "हाज़िरी सेव करें", addWorker: "नया मज़दूर जोड़ें", name: "मज़दूर का नाम", role: "काम",
+    wage: "दिहाड़ी (₹)", phone: "मोबाइल नंबर", saveWorker: "मज़दूर जोड़ें", addSite: "नई साइट जोड़ें", saveSite: "साइट जोड़ें",
+    addPay: "खर्ची / भुगतान लिखें", selectWorker: "मज़दूर चुनें", amount: "रुपये (₹)", note: "विवरण (नकद / UPI)",
+    savePay: "भुगतान सेव करें", hisabTitle: "मज़दूरों का बाकी हिसाब", refresh: "रिफ्रेश",
+    navAtt: "हाज़िरी", navWorkers: "मज़दूर", navPay: "खर्ची", navHisab: "हिसाब",
+    P: "हाज़िर", H: "आधा", A: "गैर", earned: "कमाई", paid: "दिया", bal: "बाकी", saved: "सेव हो गया!",
+    netErr: "नेटवर्क की दिक्कत है। इंटरनेट चेक करके फिर कोशिश करें।"
+  }
+};
+
+let lang = localStorage.getItem("lang") || "en";
+let DB = { sites: [], workers: [], attendance: [], payments: [] };
+let attState = {};
+
+function toggleLang() {
+  lang = lang === "en" ? "hi" : "en";
+  localStorage.setItem("lang", lang);
+  applyLang();
+  renderAttendance();
+  renderHisab();
+}
+
+function applyLang() {
+  document.getElementById("langBtn").innerText = lang === "en" ? "हिंदी" : "English";
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const k = el.getAttribute("data-t");
+    if (dict[lang][k]) el.innerText = dict[lang][k];
+  });
+}
+
+function showLoader(v) { document.getElementById("loader").classList.toggle("hidden", !v); }
+
+async function apiPost(payload) {
+  payload.pin = localStorage.getItem("pin");
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}
+
+async function doLogin() {
+  const name = document.getElementById("userName").value.trim();
+  const pin = document.getElementById("userPin").value.trim();
+  if (!name || !pin) return alert("Enter name and PIN");
+  showLoader(true);
+  try {
+    localStorage.setItem("pin", pin);
+    const res = await apiPost({ action: "login" });
+    showLoader(false);
+    if (res.ok) {
+      localStorage.setItem("userName", name);
+      startApp();
+    } else {
+      localStorage.removeItem("pin");
+      alert("Wrong PIN / गलत पिन");
+    }
+  } catch (e) {
+    showLoader(false);
+    alert(dict[lang].netErr);
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem("pin");
+  localStorage.removeItem("userName");
+  location.reload();
+}
+
+async function startApp() {
+  document.getElementById("loginView").classList.add("hidden");
+  document.getElementById("appView").classList.remove("hidden");
+  document.getElementById("bottomNav").classList.remove("hidden");
+  document.getElementById("logoutBtn").classList.remove("hidden");
+  document.getElementById("attDate").value = new Date().toISOString().split("T")[0];
+  await loadData();
+}
+
+async function loadData() {
+  showLoader(true);
+  try {
+    const res = await fetch(API_URL);
+    DB = await res.json();
+    populateDropdowns();
+    renderAttendance();
+    renderHisab();
+  } catch (e) {
+    alert(dict[lang].netErr);
+  }
+  showLoader(false);
+}
+
+function populateDropdowns() {
+  const siteOpts = DB.sites.map(s => `<option value="${s}">${s}</option>`).join("");
+  document.getElementById("attSite").innerHTML = `<option value="ALL">All Sites / सभी साइट</option>` + siteOpts;
+  document.getElementById("wSite").innerHTML = siteOpts || `<option value="Main Site">Main Site</option>`;
+  document.getElementById("pWorker").innerHTML = DB.workers.map(w => `<option value="${w.WorkerID}">${w.Name} (${w.SiteName})</option>`).join("");
+}
+
+function renderAttendance() {
+  const date = document.getElementById("attDate").value;
+  const site = document.getElementById("attSite").value;
+  const list = document.getElementById("attList");
+  const filtered = DB.workers.filter(w => site === "ALL" || w.SiteName === site);
+  attState = {};
+
+  if (!filtered.length) {
+    list.innerHTML = `<p style="text-align:center;color:#64748b">No workers yet. Add a Site and Worker in the Workers tab.</p>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(w => {
+    const existing = DB.attendance.find(a => a.Date === date && String(a.WorkerID) === String(w.WorkerID));
+    const st = existing ? existing.Status : "P";
+    const ot = existing ? existing.OT_Amount : 0;
+    attState[w.WorkerID] = { status: st, ot: Number(ot) };
+    return `
+      <div class="att-row">
+        <div class="att-top">
+          <div><b>${w.Name}</b> <span class="badge">${w.Role} • ₹${w.DailyWage}</span></div>
+          <input class="ot-input" type="number" placeholder="OT ₹" value="${ot || ''}" onchange="attState['${w.WorkerID}'].ot = Number(this.value||0)">
+        </div>
+        <div class="att-btns">
+          <button class="st-btn ${st==='P'?'active-P':''}" onclick="setSt('${w.WorkerID}','P',this)">${dict[lang].P}</button>
+          <button class="st-btn ${st==='H'?'active-H':''}" onclick="setSt('${w.WorkerID}','H',this)">${dict[lang].H}</button>
+          <button class="st-btn ${st==='A'?'active-A':''}" onclick="setSt('${w.WorkerID}','A',this)">${dict[lang].A}</button>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function setSt(id, st, btn) {
+  attState[id].status = st;
+  const parent = btn.parentElement;
+  parent.querySelectorAll("button").forEach(b => b.className = "st-btn");
+  btn.classList.add("active-" + st);
+}
+
+async function saveAttendance() {
+  const ids = Object.keys(attState);
+  if (!ids.length) return;
+  const date = document.getElementById("attDate").value;
+  const markedBy = localStorage.getItem("userName");
+  const records = ids.map(id => {
+    const w = DB.workers.find(x => String(x.WorkerID) === String(id));
+    const st = attState[id].status;
+    const ot = attState[id].ot || 0;
+    const base = st === "P" ? Number(w.DailyWage) : (st === "H" ? Number(w.DailyWage) / 2 : 0);
+    return { date, site: w.SiteName, workerId: w.WorkerID, workerName: w.Name, status: st, ot, wageEarned: base + ot, markedBy };
+  });
+  showLoader(true);
+  try {
+    await apiPost({ action: "saveAttendance", records });
+    await loadData();
+    alert(dict[lang].saved);
+  } catch (e) {
+    showLoader(false);
+    alert(dict[lang].netErr);
+  }
+}
+
+async function addWorker() {
+  const name = document.getElementById("wName").value.trim();
+  const wage = document.getElementById("wWage").value;
+  if (!name || !wage) return alert("Enter name & wage");
+  showLoader(true);
+  try {
+    await apiPost({
+      action: "addWorker", name, wage,
+      role: document.getElementById("wRole").value,
+      site: document.getElementById("wSite").value,
+      phone: document.getElementById("wPhone").value
+    });
+    document.getElementById("wName").value = "";
+    document.getElementById("wWage").value = "";
+    document.getElementById("wPhone").value = "";
+    await loadData();
+    alert(dict[lang].saved);
+  } catch (e) {
+    showLoader(false);
+    alert(dict[lang].netErr);
+  }
+}
+
+async function addSite() {
+  const siteName = document.getElementById("newSiteName").value.trim();
+  if (!siteName) return;
+  showLoader(true);
+  try {
+    await apiPost({ action: "addSite", siteName });
+    document.getElementById("newSiteName").value = "";
+    await loadData();
+    alert(dict[lang].saved);
+  } catch (e) {
+    showLoader(false);
+    alert(dict[lang].netErr);
+  }
+}
+
+async function addPayment() {
+  const workerId = document.getElementById("pWorker").value;
+  const amount = document.getElementById("pAmount").value;
+  if (!workerId || !amount) return alert("Enter amount");
+  const w = DB.workers.find(x => String(x.WorkerID) === String(workerId));
+  showLoader(true);
+  try {
+    await apiPost({
+      action: "addPayment",
+      date: new Date().toISOString().split("T")[0],
+      workerId, workerName: w.Name, amount,
+      note: document.getElementById("pNote").value,
+      paidBy: localStorage.getItem("userName")
+    });
+    document.getElementById("pAmount").value = "";
+    document.getElementById("pNote").value = "";
+    await loadData();
+    alert(dict[lang].saved);
+  } catch (e) {
+    showLoader(false);
+    alert(dict[lang].netErr);
+  }
+}
+
+function renderHisab() {
+  const list = document.getElementById("hisabList");
+  if (!DB.workers.length) {
+    list.innerHTML = `<p style="text-align:center;color:#64748b">No data yet.</p>`;
+    return;
+  }
+  list.innerHTML = DB.workers.map(w => {
+    const earned = DB.attendance.filter(a => String(a.WorkerID) === String(w.WorkerID)).reduce((s, a) => s + Number(a.WageEarned || 0), 0);
+    const paid = DB.payments.filter(p => String(p.WorkerID) === String(w.WorkerID)).reduce((s, p) => s + Number(p.Amount || 0), 0);
+    const bal = earned - paid;
+    const msg = encodeURIComponent(`Hisab - ${w.Name}\nTotal Earned: ₹${earned}\nPaid/Kharchi: ₹${paid}\nBalance Due: ₹${bal}`);
+    const waLink = `https://wa.me/${w.Phone ? '91' + String(w.Phone).replace(/\D/g,'').slice(-10) : ''}?text=${msg}`;
+    return `
+      <div class="hisab-row">
+        <div>
+          <b>${w.Name}</b> <span class="badge">${w.SiteName}</span><br>
+          <small>${dict[lang].earned}: ₹${earned} | ${dict[lang].paid}: ₹${paid}</small><br>
+          <b style="color:${bal>=0?'#16a34a':'#dc2626'}">${dict[lang].bal}: ₹${bal}</b>
+        </div>
+        <a class="wa-btn" href="${waLink}" target="_blank">WhatsApp</a>
+      </div>`;
+  }).join("");
+}
+
+function showTab(name, btn) {
+  ["att", "workers", "pay", "hisab"].forEach(t => document.getElementById("tab-" + t).classList.add("hidden"));
+  document.getElementById("tab-" + name).classList.remove("hidden");
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+applyLang();
+if (localStorage.getItem("pin") && localStorage.getItem("userName")) startApp();
+</script>
+</body>
+</html>
