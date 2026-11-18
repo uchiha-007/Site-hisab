@@ -10,42 +10,76 @@
 <style>
   * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
   body { margin: 0; background: #f1f5f9; color: #0f172a; padding-bottom: 78px; }
-  header { background: #1e3a8a; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-  header h1 { margin: 0; font-size: 18px; }
-  .hdr-btns { display: flex; gap: 8px; align-items: center; }
-  .lang-btn { background: #fff; color: #1e3a8a; border: none; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; cursor: pointer; }
-  .logout-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 10px; border-radius: 20px; font-weight: 600; font-size: 12px; cursor: pointer; }
+  header { background: #1e3a8a; color: #fff; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 20; gap: 8px; }
+  .hdr-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  header h1 { margin: 0; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .back-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 10px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+  .hdr-btns { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .lang-btn { background: #fff; color: #1e3a8a; border: none; padding: 6px 11px; border-radius: 20px; font-weight: 700; font-size: 12px; cursor: pointer; }
+  .logout-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 6px 9px; border-radius: 20px; font-weight: 600; font-size: 12px; cursor: pointer; }
   .container { padding: 12px; max-width: 600px; margin: auto; }
   .card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .site-card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); border-left: 5px solid #1e3a8a; cursor: pointer; }
+  .site-card:active { transform: scale(0.99); }
   label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin: 8px 0 4px; }
   input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; background: #fff; }
   .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+  .btn-sm { padding: 7px 12px; font-size: 12px; width: auto; margin-top: 0; }
   .btn-primary { background: #1e3a8a; color: #fff; }
   .btn-green { background: #16a34a; color: #fff; }
   .btn-wa { background: #25D366; color: #fff; }
+  .btn-outline { background: #f8fafc; color: #1e3a8a; border: 1px solid #cbd5e1; }
   .att-row { display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #e2e8f0; padding: 12px 0; }
   .att-row:last-child { border-bottom: none; }
   .att-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
   .ot-group { display: flex; gap: 6px; align-items: center; }
-  .ot-input { width: 72px; padding: 7px 6px; text-align: center; font-size: 13px; }
+  .ot-input { width: 70px; padding: 7px 6px; text-align: center; font-size: 13px; }
   .att-btns { display: flex; gap: 6px; }
   .st-btn { flex: 1; padding: 10px 0; border: 2px solid #cbd5e1; border-radius: 8px; background: #fff; font-weight: 700; cursor: pointer; }
   .st-btn.active-P { background: #16a34a; color: #fff; border-color: #16a34a; }
   .st-btn.active-H { background: #d97706; color: #fff; border-color: #d97706; }
   .st-btn.active-A { background: #dc2626; color: #fff; border-color: #dc2626; }
-  nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #cbd5e1; display: flex; z-index: 10; }
+  nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #cbd5e1; display: flex; z-index: 20; }
   nav button { flex: 1; padding: 12px 2px; border: none; background: none; font-size: 11px; font-weight: 700; color: #64748b; cursor: pointer; }
   nav button.active { color: #1e3a8a; border-top: 3px solid #1e3a8a; }
   .hidden { display: none !important; }
-  .badge { font-size: 11px; background: #e2e8f0; padding: 2px 7px; border-radius: 10px; display: inline-block; color: #334155; }
+  .badge { font-size: 11px; background: #e2e8f0; padding: 2px 7px; border-radius: 10px; display: inline-block; color: #334155; font-weight: 600; }
+  .badge-role { background: #dbeafe; color: #1e40af; }
+  .badge-mistri { background: #fef3c7; color: #92400e; }
   .hisab-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #e2e8f0; gap: 8px; }
   .hisab-row:last-child { border-bottom: none; }
-  .wa-btn { background: #25D366; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; white-space: nowrap; }
+  .wa-btn { background: #25D366; color: #fff; border: none; padding: 8px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; white-space: nowrap; }
   .summary-grid { display: flex; gap: 8px; margin-top: 10px; }
-  .sum-box { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 8px; text-align: center; }
+  .sum-box { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 6px; text-align: center; }
   .sum-box small { display: block; color: #64748b; font-size: 11px; font-weight: 600; }
-  .sum-box b { font-size: 15px; color: #0f172a; }
+  .sum-box b { font-size: 14px; color: #0f172a; }
   .hint { font-size: 12px; color: #64748b; margin: 6px 0 0; }
+  .row-2 { display: flex; gap: 8px; }
+  .row-2 > div { flex: 1; }
+  .row-3 { display: flex; gap: 6px; }
+  .row-3 > div { flex: 1; }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: #e2e8f0; flex-shrink: 0; border: 1px solid #cbd5e1; }
+  .avatar-lg { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; background: #e2e8f0; border: 2px solid #1e3a8a; }
+  .id-preview { width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 8px; background: #f8fafc; }
+  .thumb-sm { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid #cbd5e1; margin-top: 6px; }
+  /* Calendar */
+  .cal-hdr { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+  .cal-dow { font-size: 11px; font-weight: 700; color: #64748b; padding: 4px 0; }
+  .cal-day { padding: 7px 2px; border-radius: 8px; font-size: 12px; font-weight: 700; background: #f8fafc; border: 1px solid #e2e8f0; cursor: pointer; min-height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .cal-day.empty { background: transparent; border: none; cursor: default; }
+  .cal-day.st-P { background: #dcfce7; color: #166534; border-color: #86efac; }
+  .cal-day.st-H { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+  .cal-day.st-A { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+  .cal-day.has-att { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+  .cal-day.selected { outline: 2px solid #1e3a8a; }
+  .cal-sub { font-size: 9px; font-weight: 600; margin-top: 1px; }
+  .seg-ctrl { display: flex; background: #e2e8f0; border-radius: 8px; padding: 3px; margin-bottom: 10px; }
+  .seg-ctrl button { flex: 1; border: none; background: transparent; padding: 8px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #475569; cursor: pointer; }
+  .seg-ctrl button.active { background: #fff; color: #1e3a8a; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  /* Modal */
+  .modal-bg { position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+  .modal-box { background: #fff; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: 16px 16px 0 0; padding: 16px; }
   #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.85); display: flex; justify-content: center; align-items: center; font-weight: 700; font-size: 18px; color: #1e3a8a; z-index: 99; }
 </style>
 </head>
@@ -54,7 +88,10 @@
 <div id="loader" class="hidden">Loading...</div>
 
 <header>
-  <h1 data-t="title">Site Hisab</h1>
+  <div class="hdr-left">
+    <button class="back-btn hidden" id="backSitesBtn" onclick="goBackToSites()">← Sites</button>
+    <h1 id="hdrTitle" data-t="title">Site Hisab</h1>
+  </div>
   <div class="hdr-btns">
     <button class="lang-btn" onclick="toggleLang()" id="langBtn">हिंदी</button>
     <button class="logout-btn hidden" id="logoutBtn" onclick="doLogout()" data-t="logout">Logout</button>
@@ -73,22 +110,33 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- SITES HOME SCREEN -->
+<div id="sitesView" class="container hidden">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <h2 style="margin:0; font-size:18px;" data-t="selectSiteTitle">Select a Site</h2>
+    <button class="lang-btn" style="background:#e2e8f0;color:#0f172a" onclick="loadData()" data-t="refresh">Refresh</button>
+  </div>
+  <div id="sitesList"></div>
+
+  <!-- OWNER ONLY: ADD NEW SITE -->
+  <div class="card owner-only" id="addSiteCard">
+    <h3 style="margin-top:0" data-t="addSite">Add New Site</h3>
+    <label data-t="siteNameLbl">Site Name</label>
+    <input id="newSiteName" placeholder="e.g. NH-28 Road Work">
+    <label data-t="estimateLbl">Site Estimate / Contract Value (₹) (Optional)</label>
+    <input id="newSiteEstimate" type="number" inputmode="numeric" placeholder="e.g. 500000">
+    <button class="btn btn-primary" onclick="addSite()" data-t="saveSite">Add Site</button>
+  </div>
+</div>
+
+<!-- SITE WORKSPACE (AFTER CLICKING A SITE) -->
 <div id="appView" class="container hidden">
 
   <!-- TAB 1: ATTENDANCE -->
   <div id="tab-att">
     <div class="card">
-      <div style="display:flex; gap:8px;">
-        <div style="flex:1">
-          <label data-t="date">Date</label>
-          <input type="date" id="attDate" onchange="renderAttendance()">
-        </div>
-        <div style="flex:1">
-          <label data-t="site">Site</label>
-          <select id="attSite" onchange="renderAttendance()"></select>
-        </div>
-      </div>
+      <label data-t="date">Date</label>
+      <input type="date" id="attDate" onchange="renderAttendance()">
       <p class="hint" data-t="otHint">OT Hrs auto-calculates ₹ (8 hrs/day), or type ₹ directly.</p>
     </div>
     <div class="card" id="attList"></div>
@@ -96,14 +144,14 @@
     <button class="btn btn-wa" onclick="shareDailyReport()" data-t="shareDaily">Share Daily Report on WhatsApp</button>
   </div>
 
-  <!-- TAB 2: WORKERS & SITES -->
+  <!-- TAB 2: WORKERS -->
   <div id="tab-workers" class="hidden">
     <div class="card">
-      <h3 style="margin-top:0" data-t="addWorker">Add Worker</h3>
+      <h3 style="margin-top:0" data-t="addWorker">Add New Worker</h3>
       <label data-t="name">Worker Name</label>
       <input id="wName">
-      <div style="display:flex; gap:8px;">
-        <div style="flex:1">
+      <div class="row-2">
+        <div>
           <label data-t="role">Role</label>
           <select id="wRole">
             <option value="Helper">Helper / मज़दूर</option>
@@ -112,22 +160,31 @@
             <option value="Supervisor">Munshi / मुंशी</option>
           </select>
         </div>
-        <div style="flex:1">
+        <div>
           <label data-t="wage">Daily Wage (₹)</label>
           <input id="wWage" type="number" inputmode="numeric" placeholder="500">
         </div>
       </div>
-      <label data-t="site">Site</label>
-      <select id="wSite"></select>
       <label data-t="phone">Phone (Optional)</label>
       <input id="wPhone" type="tel">
+      <div class="row-2">
+        <div>
+          <label data-t="workerPhoto">Worker Photo (Optional)</label>
+          <input type="file" id="wPhotoFile" accept="image/*" onchange="handlePhotoPick(this, 'wPhoto')">
+          <img id="wPhotoPrev" class="thumb-sm hidden">
+        </div>
+        <div>
+          <label data-t="idPhoto">Aadhaar / ID Photo (Optional)</label>
+          <input type="file" id="wIdFile" accept="image/*" onchange="handlePhotoPick(this, 'wId')">
+          <img id="wIdPrev" class="thumb-sm hidden">
+        </div>
+      </div>
       <button class="btn btn-primary" onclick="addWorker()" data-t="saveWorker">Add Worker</button>
     </div>
 
     <div class="card">
-      <h3 style="margin-top:0" data-t="addSite">Add New Site</h3>
-      <input id="newSiteName" placeholder="e.g. NH-28 Road Work">
-      <button class="btn btn-primary" onclick="addSite()" data-t="saveSite">Add Site</button>
+      <h3 style="margin-top:0" data-t="siteWorkers">Site Workers (Tap for Profile)</h3>
+      <div id="workersList"></div>
     </div>
   </div>
 
@@ -151,34 +208,39 @@
   <div id="tab-exp" class="hidden">
     <div class="card">
       <h3 style="margin-top:0" data-t="addExp">Add Site Expense</h3>
-      <div style="display:flex; gap:8px;">
-        <div style="flex:1">
-          <label data-t="date">Date</label>
-          <input type="date" id="eDate">
+      <label data-t="date">Date</label>
+      <input type="date" id="eDate">
+      <label data-t="category">Item / Category</label>
+      <select id="eCat">
+        <option value="Cement">Cement / सीमेंट (Bag)</option>
+        <option value="Sand / Balu">Sand / बालू</option>
+        <option value="Gitti / Aggregate">Gitti / गिट्टी</option>
+        <option value="Sariya / Steel">Sariya / सरिया</option>
+        <option value="Bricks / Eent">Bricks / ईंट</option>
+        <option value="Diesel / Fuel">Diesel / डीजल</option>
+        <option value="JCB / Machinery">JCB / मशीनरी</option>
+        <option value="Food / Tea">Food & Tea / चाय-नाश्ता</option>
+        <option value="Other">Other / अन्य</option>
+      </select>
+
+      <div class="row-3">
+        <div>
+          <label data-t="qty">Qty</label>
+          <input id="eQty" type="number" step="any" inputmode="decimal" placeholder="50" oninput="calcExpFromQtyRate()">
         </div>
-        <div style="flex:1">
-          <label data-t="site">Site</label>
-          <select id="eSite"></select>
+        <div>
+          <label data-t="rate">Rate (₹)</label>
+          <input id="eRate" type="number" step="any" inputmode="decimal" placeholder="380" oninput="calcExpFromQtyRate()">
+        </div>
+        <div>
+          <label data-t="totalLbl">Total (₹)</label>
+          <input id="eAmount" type="number" step="any" inputmode="decimal" placeholder="19000" oninput="calcExpFromTotal()">
         </div>
       </div>
-      <div style="display:flex; gap:8px;">
-        <div style="flex:1">
-          <label data-t="category">Category</label>
-          <select id="eCat">
-            <option value="Diesel / Fuel">Diesel / डीजल</option>
-            <option value="Material">Material / मटेरियल</option>
-            <option value="JCB / Machinery">JCB / मशीनरी</option>
-            <option value="Food / Tea">Food & Tea / चाय-नाश्ता</option>
-            <option value="Other">Other / अन्य</option>
-          </select>
-        </div>
-        <div style="flex:1">
-          <label data-t="amount">Amount (₹)</label>
-          <input id="eAmount" type="number" inputmode="numeric" placeholder="1000">
-        </div>
-      </div>
-      <label data-t="note">Note / Details</label>
-      <input id="eNote" placeholder="e.g. 20L Diesel / 50 bags cement">
+      <p class="hint" data-t="expHint">Enter Qty & Rate to auto-calc Total — or enter Rate & Total to auto-calc Qty.</p>
+
+      <label data-t="note">Note / Details (Optional)</label>
+      <input id="eNote" placeholder="e.g. Ultratech bags / Tractor trolley">
       <button class="btn btn-primary" onclick="addExpense()" data-t="saveExp">Save Expense</button>
     </div>
 
@@ -188,24 +250,87 @@
     </div>
   </div>
 
-  <!-- TAB 5: HISAB SUMMARY -->
+  <!-- TAB 5: HISAB & CALENDAR -->
   <div id="tab-hisab" class="hidden">
+    <!-- OWNER ONLY: SITE ESTIMATE & CLIENT PAYMENTS -->
+    <div class="card owner-only" id="ownerFinanceCard">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0" data-t="clientFinance">Estimate & Client Payments</h3>
+        <button class="btn btn-sm btn-outline" onclick="editSiteEstimate()" data-t="editEst">Edit Estimate</button>
+      </div>
+      <div class="summary-grid" id="financeSummary"></div>
+      <div style="margin-top:12px; padding-top:10px; border-top:1px solid #e2e8f0;">
+        <b style="font-size:13px;" data-t="addClientPay">Add Payment Received</b>
+        <div class="row-2">
+          <div>
+            <label data-t="amount">Amount (₹)</label>
+            <input id="spAmount" type="number" inputmode="numeric" placeholder="50000">
+          </div>
+          <div>
+            <label data-t="note">Note (Cheque/UPI/Cash)</label>
+            <input id="spNote" placeholder="1st Bill">
+          </div>
+        </div>
+        <button class="btn btn-green" onclick="addSitePayment()" data-t="saveClientPay">Save Received Payment</button>
+      </div>
+      <div id="sitePayList" style="margin-top:10px;"></div>
+    </div>
+
+    <!-- SITE COST SUMMARY -->
     <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
         <h3 style="margin:0" data-t="siteCost">Site Cost Summary</h3>
         <button class="lang-btn" style="background:#e2e8f0;color:#0f172a" onclick="loadData()" data-t="refresh">Refresh</button>
       </div>
-      <label data-t="site">Site</label>
-      <select id="hSite" onchange="renderHisab()"></select>
       <div class="summary-grid" id="siteSummary"></div>
     </div>
 
+    <!-- CALENDAR VIEW (SITE STRENGTH OR WORKER) -->
     <div class="card">
-      <h3 style="margin-top:0" data-t="hisabTitle">Worker Balance (Hisab)</h3>
-      <div id="hisabList"></div>
+      <h3 style="margin-top:0" data-t="calTitle">Attendance Calendar</h3>
+      <div class="seg-ctrl">
+        <button id="calModeSite" class="active" onclick="setCalMode('site')" data-t="siteStrength">Site Strength</button>
+        <button id="calModeWorker" onclick="setCalMode('worker')" data-t="workerCal">Worker Calendar</button>
+      </div>
+      <div id="calWorkerPicker" class="hidden" style="margin-bottom:8px;">
+        <select id="calWorkerSelect" onchange="renderCalendar()"></select>
+      </div>
+      <div class="cal-hdr">
+        <button class="btn btn-sm btn-outline" onclick="shiftMonth(-1)">◀</button>
+        <b id="calMonthLabel"></b>
+        <button class="btn btn-sm btn-outline" onclick="shiftMonth(1)">▶</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div id="calDayDetails" style="margin-top:10px; font-size:13px;"></div>
+    </div>
+
+    <!-- WORKER BALANCE LIST -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <h3 style="margin:0" data-t="hisabTitle">Worker Balance</h3>
+        <select id="hRole" onchange="renderHisab()" style="width:auto; padding:6px 8px; font-size:12px;">
+          <option value="ALL">All Roles</option>
+          <option value="Mistri">Mistri</option>
+          <option value="Helper">Helper</option>
+          <option value="Operator">Operator</option>
+          <option value="Supervisor">Munshi</option>
+        </select>
+      </div>
+      <div id="hisabList" style="margin-top:8px;"></div>
     </div>
   </div>
 
+</div>
+
+<!-- WORKER PROFILE MODAL -->
+<div id="profileModal" class="modal-bg hidden" onclick="if(event.target===this) closeProfile()">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="margin:0" id="profName">Worker Profile</h3>
+      <button class="btn btn-sm btn-outline" onclick="closeProfile()">✕</button>
+    </div>
+    <div id="profBody"></div>
+  </div>
 </div>
 
 <nav id="bottomNav" class="hidden">
@@ -222,29 +347,43 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxE-TwVPQYGjvHRZ30EnC0-
 const dict = {
   en: {
     title: "Site Hisab", logout: "Logout", loginTitle: "Supervisor / Owner Login", yourName: "Your Name", enterPin: "Enter PIN", loginBtn: "Login",
-    date: "Date", site: "Site", otHint: "OT Hrs auto-calculates ₹ (8 hrs/day), or type ₹ directly.",
+    selectSiteTitle: "Select a Site", siteNameLbl: "Site Name", estimateLbl: "Site Estimate / Contract Value (₹) (Optional)",
+    date: "Date", otHint: "OT Hrs auto-calculates ₹ (8 hrs/day), or type ₹ directly.",
     saveAtt: "Save Attendance", shareDaily: "Share Daily Report on WhatsApp",
-    addWorker: "Add New Worker", name: "Worker Name", role: "Role",
-    wage: "Daily Wage (₹)", phone: "Phone (Optional)", saveWorker: "Add Worker", addSite: "Add New Site", saveSite: "Add Site",
-    addPay: "Record Kharchi / Payment", selectWorker: "Select Worker", amount: "Amount (₹)", note: "Note (Cash / UPI)",
+    addWorker: "Add New Worker", siteWorkers: "Site Workers (Tap for Profile)", name: "Worker Name", role: "Role",
+    wage: "Daily Wage (₹)", phone: "Phone (Optional)", workerPhoto: "Worker Photo (Optional)", idPhoto: "Aadhaar / ID Photo (Optional)",
+    saveWorker: "Add Worker", addSite: "Add New Site", saveSite: "Add Site",
+    addPay: "Record Kharchi / Payment", selectWorker: "Select Worker", amount: "Amount (₹)", totalLbl: "Total (₹)", note: "Note / Details",
     savePay: "Save Payment",
-    addExp: "Add Site Expense", category: "Category", saveExp: "Save Expense", recentExp: "Recent Site Expenses",
+    addExp: "Add Site Expense", category: "Item / Category", qty: "Qty", rate: "Rate (₹)",
+    expHint: "Enter Qty & Rate to auto-calc Total — or enter Rate & Total to auto-calc Qty.",
+    saveExp: "Save Expense", recentExp: "Recent Site Expenses",
+    clientFinance: "Estimate & Client Payments", editEst: "Edit Estimate", addClientPay: "Add Payment Received", saveClientPay: "Save Received Payment",
+    est: "Estimate", recd: "Received", left: "Left",
     siteCost: "Site Cost Summary", labourTotal: "Labour", expTotal: "Site Exp", grandTotal: "Total Cost",
-    hisabTitle: "Worker Balance (Hisab)", refresh: "Refresh",
+    calTitle: "Attendance Calendar", siteStrength: "Site Strength", workerCal: "Worker Calendar",
+    hisabTitle: "Worker Balance", refresh: "Refresh",
     navAtt: "Attendance", navWorkers: "Workers", navPay: "Kharchi", navExp: "Expenses", navHisab: "Hisab",
     P: "P", H: "Half", A: "A", earned: "Earned", paid: "Paid", bal: "Balance", saved: "Saved!",
     netErr: "Network error. Check internet and try again."
   },
   hi: {
     title: "साइट हिसाब", logout: "लॉगआउट", loginTitle: "मुंशी / मालिक लॉगिन", yourName: "आपका नाम", enterPin: "पिन डालें", loginBtn: "लॉगिन करें",
-    date: "तारीख", site: "साइट", otHint: "OT घंटे (8 घंटे/दिन) से ₹ अपने आप जुड़ेगा, या सीधे ₹ लिखें।",
+    selectSiteTitle: "साइट चुनें", siteNameLbl: "साइट का नाम", estimateLbl: "साइट का एस्टीमेट / ठेका (₹) (वैकल्पिक)",
+    date: "तारीख", otHint: "OT घंटे (8 घंटे/दिन) से ₹ अपने आप जुड़ेगा, या सीधे ₹ लिखें।",
     saveAtt: "हाज़िरी सेव करें", shareDaily: "आज की रिपोर्ट WhatsApp करें",
-    addWorker: "नया मज़दूर जोड़ें", name: "मज़दूर का नाम", role: "काम",
-    wage: "दिहाड़ी (₹)", phone: "मोबाइल नंबर", saveWorker: "मज़दूर जोड़ें", addSite: "नई साइट जोड़ें", saveSite: "साइट जोड़ें",
-    addPay: "खर्ची / भुगतान लिखें", selectWorker: "मज़दूर चुनें", amount: "रुपये (₹)", note: "विवरण (नकद / UPI)",
+    addWorker: "नया मज़दूर जोड़ें", siteWorkers: "साइट के मज़दूर (प्रोफ़ाइल देखें)", name: "मज़दूर का नाम", role: "काम",
+    wage: "दिहाड़ी (₹)", phone: "मोबाइल नंबर", workerPhoto: "मज़दूर की फोटो (वैकल्पिक)", idPhoto: "आधार / ID फोटो (वैकल्पिक)",
+    saveWorker: "मज़दूर जोड़ें", addSite: "नई साइट जोड़ें", saveSite: "साइट जोड़ें",
+    addPay: "खर्ची / भुगतान लिखें", selectWorker: "मज़दूर चुनें", amount: "रुपये (₹)", totalLbl: "कुल (₹)", note: "विवरण (नकद / UPI)",
     savePay: "भुगतान सेव करें",
-    addExp: "साइट खर्च लिखें", category: "खर्च का प्रकार", saveExp: "खर्च सेव करें", recentExp: "हाल के साइट खर्च",
+    addExp: "साइट खर्च लिखें", category: "सामान / खर्च का प्रकार", qty: "मात्रा", rate: "दर (₹)",
+    expHint: "मात्रा और दर डालें तो कुल ₹ बनेगा — या दर और कुल ₹ डालें तो मात्रा निकलेगी।",
+    saveExp: "खर्च सेव करें", recentExp: "हाल के साइट खर्च",
+    clientFinance: "एस्टीमेट और मिला पैसा", editEst: "एस्टीमेट बदलें", addClientPay: "मिला हुआ पैसा लिखें", saveClientPay: "पैसा सेव करें",
+    est: "एस्टीमेट", recd: "मिला", left: "बाकी",
     siteCost: "साइट का कुल खर्च", labourTotal: "मज़दूरी", expTotal: "साइट खर्च", grandTotal: "कुल लागत",
+    calTitle: "हाज़िरी कैलेंडर", siteStrength: "साइट पर मज़दूर", workerCal: "मज़दूर का कैलेंडर",
     hisabTitle: "मज़दूरों का बाकी हिसाब", refresh: "रिफ्रेश",
     navAtt: "हाज़िरी", navWorkers: "मज़दूर", navPay: "खर्ची", navExp: "खर्च", navHisab: "हिसाब",
     P: "हाज़िर", H: "आधा", A: "गैर", earned: "कमाई", paid: "दिया", bal: "बाकी", saved: "सेव हो गया!",
@@ -253,16 +392,28 @@ const dict = {
 };
 
 let lang = localStorage.getItem("lang") || "en";
-let DB = { sites: [], workers: [], attendance: [], payments: [], expenses: [] };
+let DB = { sites: [], siteDetails: [], workers: [], attendance: [], payments: [], expenses: [], sitePayments: [] };
+let currentSite = null;
 let attState = {};
+let pendingPhotos = { wPhoto: "", wId: "" };
+let calMode = "site";
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let selectedCalDate = null;
+
+function isOwner() { return localStorage.getItem("userRole") === "Owner"; }
+
+function getLocalToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 
 function toggleLang() {
   lang = lang === "en" ? "hi" : "en";
   localStorage.setItem("lang", lang);
   applyLang();
-  renderAttendance();
-  renderExpenses();
-  renderHisab();
+  renderSitesHome();
+  if (currentSite) renderAllSiteViews();
 }
 
 function applyLang() {
@@ -271,6 +422,8 @@ function applyLang() {
     const k = el.getAttribute("data-t");
     if (dict[lang][k]) el.innerText = dict[lang][k];
   });
+  if (currentSite) document.getElementById("hdrTitle").innerText = currentSite;
+  document.querySelectorAll(".owner-only").forEach(el => el.classList.toggle("hidden", !isOwner()));
 }
 
 function showLoader(v) { document.getElementById("loader").classList.toggle("hidden", !v); }
@@ -296,6 +449,7 @@ async function doLogin() {
     showLoader(false);
     if (res.ok) {
       localStorage.setItem("userName", name);
+      localStorage.setItem("userRole", res.role || "Supervisor");
       startApp();
     } else {
       localStorage.removeItem("pin");
@@ -310,19 +464,20 @@ async function doLogin() {
 function doLogout() {
   localStorage.removeItem("pin");
   localStorage.removeItem("userName");
+  localStorage.removeItem("userRole");
   location.reload();
 }
 
 async function startApp() {
   document.getElementById("loginView").classList.add("hidden");
-  document.getElementById("appView").classList.remove("hidden");
-  document.getElementById("bottomNav").classList.remove("hidden");
   document.getElementById("logoutBtn").classList.remove("hidden");
-  const today = new Date().toISOString().split("T")[0];
+  const today = getLocalToday();
   document.getElementById("attDate").value = today;
   document.getElementById("pDate").value = today;
   document.getElementById("eDate").value = today;
+  applyLang();
   await loadData();
+  goBackToSites();
 }
 
 async function loadData() {
@@ -331,52 +486,132 @@ async function loadData() {
     const res = await fetch(API_URL);
     DB = await res.json();
     if (!DB.expenses) DB.expenses = [];
-    populateDropdowns();
-    renderAttendance();
-    renderExpenses();
-    renderHisab();
+    if (!DB.sitePayments) DB.sitePayments = [];
+    if (!DB.siteDetails) DB.siteDetails = DB.sites.map(s => ({ SiteName: s, Estimate: 0 }));
+    renderSitesHome();
+    if (currentSite) renderAllSiteViews();
   } catch (e) {
     alert(dict[lang].netErr);
   }
   showLoader(false);
 }
 
-function populateDropdowns() {
-  const prevAttSite = document.getElementById("attSite").value || "ALL";
-  const prevHSite = document.getElementById("hSite").value || "ALL";
-  const siteOpts = DB.sites.map(s => `<option value="${s}">${s}</option>`).join("");
-  const allOpt = `<option value="ALL">All Sites / सभी साइट</option>`;
-  document.getElementById("attSite").innerHTML = allOpt + siteOpts;
-  document.getElementById("hSite").innerHTML = allOpt + siteOpts;
-  document.getElementById("attSite").value = DB.sites.includes(prevAttSite) ? prevAttSite : "ALL";
-  document.getElementById("hSite").value = DB.sites.includes(prevHSite) ? prevHSite : "ALL";
-  document.getElementById("wSite").innerHTML = siteOpts || `<option value="Main Site">Main Site</option>`;
-  document.getElementById("eSite").innerHTML = siteOpts || `<option value="Main Site">Main Site</option>`;
-  document.getElementById("pWorker").innerHTML = DB.workers.map(w => `<option value="${w.WorkerID}">${w.Name} (${w.SiteName})</option>`).join("");
+function renderSitesHome() {
+  const list = document.getElementById("sitesList");
+  const sites = DB.siteDetails && DB.siteDetails.length ? DB.siteDetails : DB.sites.map(s => ({ SiteName: s, Estimate: 0 }));
+  if (!sites.length) {
+    list.innerHTML = `<div class="card" style="text-align:center;color:#64748b">No sites yet. Add your first site below.</div>`;
+    return;
+  }
+  list.innerHTML = sites.map(s => {
+    const name = s.SiteName;
+    const est = Number(s.Estimate || 0);
+    const wCount = DB.workers.filter(w => w.SiteName === name).length;
+    const recd = DB.sitePayments.filter(p => p.SiteName === name).reduce((a, b) => a + Number(b.Amount || 0), 0);
+    const left = est - recd;
+    const labour = DB.attendance.filter(a => a.SiteName === name).reduce((a, b) => a + Number(b.WageEarned || 0), 0);
+    const exp = DB.expenses.filter(e => e.SiteName === name).reduce((a, b) => a + Number(b.Amount || 0), 0);
+    const ownerHtml = isOwner() ? `
+      <div class="summary-grid" style="margin-top:8px;">
+        <div class="sum-box"><small>${dict[lang].est}</small><b>₹${est}</b></div>
+        <div class="sum-box"><small>${dict[lang].recd}</small><b style="color:#16a34a">₹${recd}</b></div>
+        <div class="sum-box"><small>${dict[lang].left}</small><b style="color:#d97706">₹${left}</b></div>
+      </div>
+      <div style="font-size:12px; color:#475569; margin-top:6px;">${dict[lang].grandTotal}: <b>₹${labour + exp}</b> (${dict[lang].labourTotal}: ₹${labour} | ${dict[lang].expTotal}: ₹${exp})</div>
+    ` : "";
+    return `
+      <div class="site-card" onclick="openSite('${name.replace(/'/g, "\\'")}')">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <b style="font-size:16px; color:#1e3a8a;">${name}</b>
+          <span class="badge">${wCount} Workers →</span>
+        </div>
+        ${ownerHtml}
+      </div>`;
+  }).join("");
 }
 
+function openSite(siteName) {
+  currentSite = siteName;
+  document.getElementById("sitesView").classList.add("hidden");
+  document.getElementById("appView").classList.remove("hidden");
+  document.getElementById("bottomNav").classList.remove("hidden");
+  document.getElementById("backSitesBtn").classList.remove("hidden");
+  document.getElementById("hdrTitle").innerText = siteName;
+  renderAllSiteViews();
+  showTab("att", document.querySelector("#bottomNav button"));
+}
+
+function goBackToSites() {
+  currentSite = null;
+  document.getElementById("appView").classList.add("hidden");
+  document.getElementById("bottomNav").classList.add("hidden");
+  document.getElementById("backSitesBtn").classList.add("hidden");
+  document.getElementById("sitesView").classList.remove("hidden");
+  document.getElementById("hdrTitle").innerText = dict[lang].title;
+  renderSitesHome();
+}
+
+function renderAllSiteViews() {
+  const siteWorkers = DB.workers.filter(w => w.SiteName === currentSite);
+  document.getElementById("pWorker").innerHTML = siteWorkers.map(w => `<option value="${w.WorkerID}">${w.Name} (${w.Role})</option>`).join("");
+  document.getElementById("calWorkerSelect").innerHTML = siteWorkers.map(w => `<option value="${w.WorkerID}">${w.Name} (${w.Role})</option>`).join("");
+  renderAttendance();
+  renderWorkersList();
+  renderExpenses();
+  renderHisab();
+  renderCalendar();
+}
+
+// --- PHOTO COMPRESSION (fits cleanly in Google Sheets without Drive auth) ---
+function handlePhotoPick(input, key) {
+  const file = input.files && input.files[0];
+  if (!file) { pendingPhotos[key] = ""; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 360;
+      const scale = Math.min(1, maxW / img.width);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.55);
+      pendingPhotos[key] = dataUrl;
+      const prev = document.getElementById(key + "Prev");
+      prev.src = dataUrl;
+      prev.classList.remove("hidden");
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// --- ATTENDANCE ---
 function renderAttendance() {
   const date = document.getElementById("attDate").value;
-  const site = document.getElementById("attSite").value;
   const list = document.getElementById("attList");
-  const filtered = DB.workers.filter(w => site === "ALL" || w.SiteName === site);
+  const filtered = DB.workers.filter(w => w.SiteName === currentSite);
   attState = {};
 
   if (!filtered.length) {
-    list.innerHTML = `<p style="text-align:center;color:#64748b">No workers yet. Add a Site and Worker in the Workers tab.</p>`;
+    list.innerHTML = `<p style="text-align:center;color:#64748b">No workers in this site yet. Add workers in the Workers tab.</p>`;
     return;
   }
 
   list.innerHTML = filtered.map(w => {
-    const existing = DB.attendance.find(a => a.Date === date && String(a.WorkerID) === String(w.WorkerID));
+    const existing = DB.attendance.find(a => String(a.Date).trim() === date && String(a.WorkerID) === String(w.WorkerID));
     const st = existing ? existing.Status : "P";
     const ot = existing ? Number(existing.OT_Amount || 0) : 0;
     const otHrs = existing ? Number(existing.OT_Hours || 0) : 0;
-    attState[w.WorkerID] = { status: st, ot: ot, otHours: otHrs, wage: Number(w.DailyWage) };
+    attState[w.WorkerID] = { status: st, ot, otHours: otHrs, wage: Number(w.DailyWage) };
+    const roleCls = w.Role === "Mistri" ? "badge-mistri" : "badge-role";
     return `
       <div class="att-row">
         <div class="att-top">
-          <div><b>${w.Name}</b> <span class="badge">${w.Role} • ₹${w.DailyWage}</span></div>
+          <div onclick="openWorkerProfile('${w.WorkerID}')" style="cursor:pointer;">
+            <b>${w.Name}</b> <span class="badge ${roleCls}">${w.Role}</span> <span class="badge">₹${w.DailyWage}</span>
+          </div>
           <div class="ot-group">
             <input class="ot-input" id="oth-${w.WorkerID}" type="number" step="0.5" inputmode="decimal" placeholder="OT Hrs" value="${otHrs || ''}" oninput="onOtHours('${w.WorkerID}', this.value)">
             <input class="ot-input" id="otr-${w.WorkerID}" type="number" inputmode="numeric" placeholder="OT ₹" value="${ot || ''}" oninput="onOtRupees('${w.WorkerID}', this.value)">
@@ -398,15 +633,10 @@ function onOtHours(id, val) {
   attState[id].ot = calcRs;
   document.getElementById("otr-" + id).value = calcRs || "";
 }
-
-function onOtRupees(id, val) {
-  attState[id].ot = Number(val || 0);
-}
-
+function onOtRupees(id, val) { attState[id].ot = Number(val || 0); }
 function setSt(id, st, btn) {
   attState[id].status = st;
-  const parent = btn.parentElement;
-  parent.querySelectorAll("button").forEach(b => b.className = "st-btn");
+  btn.parentElement.querySelectorAll("button").forEach(b => b.className = "st-btn");
   btn.classList.add("active-" + st);
 }
 
@@ -421,31 +651,25 @@ async function saveAttendance() {
     const ot = attState[id].ot || 0;
     const otHours = attState[id].otHours || 0;
     const base = st === "P" ? Number(w.DailyWage) : (st === "H" ? Number(w.DailyWage) / 2 : 0);
-    return { date, site: w.SiteName, workerId: w.WorkerID, workerName: w.Name, status: st, ot, otHours, wageEarned: base + ot, markedBy };
+    return { date, site: currentSite, workerId: w.WorkerID, workerName: w.Name, status: st, ot, otHours, wageEarned: base + ot, markedBy };
   });
   showLoader(true);
   try {
     await apiPost({ action: "saveAttendance", records });
     await loadData();
     alert(dict[lang].saved);
-  } catch (e) {
-    showLoader(false);
-    alert(dict[lang].netErr);
-  }
+  } catch (e) { showLoader(false); alert(dict[lang].netErr); }
 }
 
 function shareDailyReport() {
   const date = document.getElementById("attDate").value;
-  const site = document.getElementById("attSite").value;
-
-  const dayAtt = DB.attendance.filter(a => a.Date === date && (site === "ALL" || a.SiteName === site));
+  const dayAtt = DB.attendance.filter(a => String(a.Date).trim() === date && a.SiteName === currentSite);
   const dayPay = DB.payments.filter(p => {
-    if (p.Date !== date) return false;
-    if (site === "ALL") return true;
+    if (String(p.Date).trim() !== date) return false;
     const w = DB.workers.find(x => String(x.WorkerID) === String(p.WorkerID));
-    return w && w.SiteName === site;
+    return w && w.SiteName === currentSite;
   });
-  const dayExp = (DB.expenses || []).filter(e => e.Date === date && (site === "ALL" || e.SiteName === site));
+  const dayExp = DB.expenses.filter(e => String(e.Date).trim() === date && e.SiteName === currentSite);
 
   const pCount = dayAtt.filter(a => a.Status === "P").length;
   const hCount = dayAtt.filter(a => a.Status === "H").length;
@@ -456,45 +680,59 @@ function shareDailyReport() {
 
   const isHi = lang === "hi";
   const stMap = isHi ? { P: "हाज़िर", H: "आधा", A: "गैर" } : { P: "P", H: "Half", A: "A" };
-  const siteTxt = site === "ALL" ? (isHi ? "सभी साइट" : "All Sites") : site;
-
-  let lines = [];
-  lines.push(isHi ? `*साइट रिपोर्ट - ${date}*` : `*Site Report - ${date}*`);
-  lines.push(isHi ? `साइट: ${siteTxt}` : `Site: ${siteTxt}`);
-  lines.push(`---`);
-  lines.push(isHi ? `*हाज़िरी:* हाज़िर: ${pCount} | आधा: ${hCount} | गैर: ${aCount}` : `*Attendance:* P: ${pCount} | Half: ${hCount} | A: ${aCount}`);
+  let lines = [
+    isHi ? `*साइट रिपोर्ट - ${date}*` : `*Site Report - ${date}*`,
+    isHi ? `साइट: ${currentSite}` : `Site: ${currentSite}`,
+    `---`,
+    isHi ? `*हाज़िरी:* हाज़िर: ${pCount} | आधा: ${hCount} | गैर: ${aCount}` : `*Attendance:* P: ${pCount} | Half: ${hCount} | A: ${aCount}`
+  ];
   if (dayAtt.length) {
     dayAtt.forEach(a => {
-      let otTxt = "";
-      if (Number(a.OT_Amount || 0) > 0 || Number(a.OT_Hours || 0) > 0) {
-        otTxt = ` + OT(${a.OT_Hours ? a.OT_Hours + (isHi ? 'घं/' : 'h/') : ''}₹${a.OT_Amount || 0})`;
-      }
+      let otTxt = (Number(a.OT_Amount || 0) > 0 || Number(a.OT_Hours || 0) > 0)
+        ? ` + OT(${a.OT_Hours ? a.OT_Hours + (isHi ? 'घं/' : 'h/') : ''}₹${a.OT_Amount || 0})` : "";
       lines.push(`• ${a.WorkerName}: ${stMap[a.Status] || a.Status}${otTxt} = ₹${a.WageEarned}`);
     });
     lines.push(isHi ? `*कुल मज़दूरी:* ₹${totalWage}` : `*Total Labour Wage:* ₹${totalWage}`);
   } else {
     lines.push(isHi ? `(इस तारीख की हाज़िरी अभी सेव नहीं हुई है)` : `(No attendance saved for this date yet)`);
   }
-
   if (dayPay.length) {
-    lines.push(`---`);
-    lines.push(isHi ? `*खर्ची / भुगतान:*` : `*Kharchi / Payments Given:*`);
+    lines.push(`---`, isHi ? `*खर्ची / भुगतान:*` : `*Kharchi / Payments:*`);
     dayPay.forEach(p => lines.push(`• ${p.WorkerName}: ₹${p.Amount} (${p.Note || (isHi ? 'खर्ची' : 'Kharchi')})`));
     lines.push(isHi ? `*कुल भुगतान:* ₹${totalPay}` : `*Total Paid:* ₹${totalPay}`);
   }
-
   if (dayExp.length) {
-    lines.push(`---`);
-    lines.push(isHi ? `*साइट खर्च:*` : `*Site Expenses:*`);
+    lines.push(`---`, isHi ? `*साइट खर्च:*` : `*Site Expenses:*`);
     dayExp.forEach(e => lines.push(`• ${e.Category}: ₹${e.Amount}${e.Note ? ' - ' + e.Note : ''}`));
     lines.push(isHi ? `*कुल साइट खर्च:* ₹${totalExp}` : `*Total Site Exp:* ₹${totalExp}`);
   }
+  lines.push(`---`, isHi ? `*आज का कुल नकद खर्च:* ₹${totalPay + totalExp}` : `*Total Cash Out Today:* ₹${totalPay + totalExp}`);
+  window.open(`https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+}
 
-  lines.push(`---`);
-  lines.push(isHi ? `*आज का कुल नकद खर्च:* ₹${totalPay + totalExp}` : `*Total Cash Out Today:* ₹${totalPay + totalExp}`);
-
-  const url = `https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`;
-  window.open(url, "_blank");
+// --- WORKERS & PROFILE ---
+function renderWorkersList() {
+  const list = document.getElementById("workersList");
+  const workers = DB.workers.filter(w => w.SiteName === currentSite);
+  if (!workers.length) {
+    list.innerHTML = `<p style="text-align:center;color:#64748b">No workers yet.</p>`;
+    return;
+  }
+  list.innerHTML = workers.map(w => {
+    const roleCls = w.Role === "Mistri" ? "badge-mistri" : "badge-role";
+    const imgHtml = w.Photo ? `<img class="avatar" src="${w.Photo}">` : `<div class="avatar" style="display:flex;align-items:center;justify-content:center;font-weight:700;color:#475569;">${w.Name[0].toUpperCase()}</div>`;
+    return `
+      <div class="hisab-row" style="cursor:pointer;" onclick="openWorkerProfile('${w.WorkerID}')">
+        <div style="display:flex; align-items:center; gap:10px;">
+          ${imgHtml}
+          <div>
+            <b>${w.Name}</b> <span class="badge ${roleCls}">${w.Role}</span><br>
+            <small>₹${w.DailyWage}/day ${w.Phone ? '• ' + w.Phone : ''}</small>
+          </div>
+        </div>
+        <span class="badge">Profile →</span>
+      </div>`;
+  }).join("");
 }
 
 async function addWorker() {
@@ -506,106 +744,200 @@ async function addWorker() {
     await apiPost({
       action: "addWorker", name, wage,
       role: document.getElementById("wRole").value,
-      site: document.getElementById("wSite").value,
-      phone: document.getElementById("wPhone").value
+      site: currentSite,
+      phone: document.getElementById("wPhone").value,
+      photo: pendingPhotos.wPhoto || "",
+      idPhoto: pendingPhotos.wId || ""
     });
     document.getElementById("wName").value = "";
     document.getElementById("wWage").value = "";
     document.getElementById("wPhone").value = "";
+    document.getElementById("wPhotoFile").value = "";
+    document.getElementById("wIdFile").value = "";
+    document.getElementById("wPhotoPrev").classList.add("hidden");
+    document.getElementById("wIdPrev").classList.add("hidden");
+    pendingPhotos = { wPhoto: "", wId: "" };
     await loadData();
     alert(dict[lang].saved);
-  } catch (e) {
-    showLoader(false);
-    alert(dict[lang].netErr);
-  }
+  } catch (e) { showLoader(false); alert(dict[lang].netErr); }
 }
 
+function openWorkerProfile(workerId) {
+  const w = DB.workers.find(x => String(x.WorkerID) === String(workerId));
+  if (!w) return;
+  const att = DB.attendance.filter(a => String(a.WorkerID) === String(w.WorkerID));
+  const earned = att.reduce((s, a) => s + Number(a.WageEarned || 0), 0);
+  const paid = DB.payments.filter(p => String(p.WorkerID) === String(w.WorkerID)).reduce((s, p) => s + Number(p.Amount || 0), 0);
+  const bal = earned - paid;
+  const pDays = att.filter(a => a.Status === "P").length;
+  const hDays = att.filter(a => a.Status === "H").length;
+  const aDays = att.filter(a => a.Status === "A").length;
+
+  document.getElementById("profName").innerText = `${w.Name} (${w.Role})`;
+  const photoHtml = w.Photo ? `<img class="avatar-lg" src="${w.Photo}">` : `<div class="avatar-lg" style="display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#1e3a8a;">${w.Name[0].toUpperCase()}</div>`;
+  const idHtml = w.IdPhoto ? `<div style="margin-top:10px;"><b style="font-size:12px;">Aadhaar / ID Card:</b><img class="id-preview" src="${w.IdPhoto}"></div>` : "";
+
+  document.getElementById("profBody").innerHTML = `
+    <div style="display:flex; gap:12px; align-items:center;">
+      ${photoHtml}
+      <div>
+        <div style="font-size:14px;"><b>Site:</b> ${w.SiteName}</div>
+        <div style="font-size:14px;"><b>Wage:</b> ₹${w.DailyWage}/day</div>
+        ${w.Phone ? `<div style="font-size:14px;"><b>Phone:</b> <a href="tel:${w.Phone}">${w.Phone}</a></div>` : ""}
+      </div>
+    </div>
+    <div class="summary-grid">
+      <div class="sum-box"><small>${dict[lang].earned}</small><b>₹${earned}</b></div>
+      <div class="sum-box"><small>${dict[lang].paid}</small><b>₹${paid}</b></div>
+      <div class="sum-box"><small>${dict[lang].bal}</small><b style="color:${bal>=0?'#16a34a':'#dc2626'}">₹${bal}</b></div>
+    </div>
+    <div class="summary-grid">
+      <div class="sum-box"><small>Present</small><b style="color:#16a34a">${pDays}</b></div>
+      <div class="sum-box"><small>Half-Day</small><b style="color:#d97706">${hDays}</b></div>
+      <div class="sum-box"><small>Absent</small><b style="color:#dc2626">${aDays}</b></div>
+    </div>
+    <button class="btn btn-primary" onclick="jumpToWorkerCal('${w.WorkerID}')">View Monthly Calendar</button>
+    ${idHtml}
+  `;
+  document.getElementById("profileModal").classList.remove("hidden");
+}
+
+function closeProfile() { document.getElementById("profileModal").classList.add("hidden"); }
+
+function jumpToWorkerCal(workerId) {
+  closeProfile();
+  showTab("hisab", document.querySelectorAll("#bottomNav button")[4]);
+  document.getElementById("calWorkerSelect").value = workerId;
+  setCalMode("worker");
+}
+
+// --- SITES & OWNER FINANCE ---
 async function addSite() {
   const siteName = document.getElementById("newSiteName").value.trim();
+  const estimate = document.getElementById("newSiteEstimate").value || 0;
   if (!siteName) return;
   showLoader(true);
   try {
-    await apiPost({ action: "addSite", siteName });
+    await apiPost({ action: "addSite", siteName, estimate });
     document.getElementById("newSiteName").value = "";
+    document.getElementById("newSiteEstimate").value = "";
     await loadData();
     alert(dict[lang].saved);
-  } catch (e) {
-    showLoader(false);
-    alert(dict[lang].netErr);
-  }
+  } catch (e) { showLoader(false); alert(dict[lang].netErr); }
 }
 
+async function editSiteEstimate() {
+  const cur = DB.siteDetails.find(s => s.SiteName === currentSite);
+  const val = prompt("Enter Site Estimate (₹):", cur ? cur.Estimate : 0);
+  if (val === null) return;
+  showLoader(true);
+  try {
+    await apiPost({ action: "updateSiteEstimate", siteName: currentSite, estimate: Number(val || 0) });
+    await loadData();
+    alert(dict[lang].saved);
+  } catch (e) { showLoader(false); alert(dict[lang].netErr); }
+}
+
+async function addSitePayment() {
+  const amount = document.getElementById("spAmount").value;
+  const note = document.getElementById("spNote").value.trim();
+  if (!amount) return alert("Enter amount");
+  showLoader(true);
+  try {
+    await apiPost({
+      action: "addSitePayment", date: getLocalToday(), site: currentSite,
+      amount, note, receivedBy: localStorage.getItem("userName")
+    });
+    document.getElementById("spAmount").value = "";
+    document.getElementById("spNote").value = "";
+    await loadData();
+    alert(dict[lang].saved);
+  } catch (e) { showLoader(false); alert(dict[lang].netErr); }
+}
+
+// --- KHARCHI & EXPENSES ---
 async function addPayment() {
   const workerId = document.getElementById("pWorker").value;
   const amount = document.getElementById("pAmount").value;
-  const date = document.getElementById("pDate").value || new Date().toISOString().split("T")[0];
+  const date = document.getElementById("pDate").value || getLocalToday();
   if (!workerId || !amount) return alert("Enter amount");
   const w = DB.workers.find(x => String(x.WorkerID) === String(workerId));
   showLoader(true);
   try {
     await apiPost({
-      action: "addPayment", date,
-      workerId, workerName: w.Name, amount,
-      note: document.getElementById("pNote").value,
-      paidBy: localStorage.getItem("userName")
+      action: "addPayment", date, workerId, workerName: w.Name, amount,
+      note: document.getElementById("pNote").value, paidBy: localStorage.getItem("userName")
     });
     document.getElementById("pAmount").value = "";
     document.getElementById("pNote").value = "";
     await loadData();
     alert(dict[lang].saved);
-  } catch (e) {
-    showLoader(false);
-    alert(dict[lang].netErr);
-  }
+  } catch (e) { showLoader(false); alert(dict[lang].netErr); }
+}
+
+function calcExpFromQtyRate() {
+  const q = parseFloat(document.getElementById("eQty").value);
+  const r = parseFloat(document.getElementById("eRate").value);
+  if (q > 0 && r > 0) document.getElementById("eAmount").value = Math.round(q * r * 100) / 100;
+}
+function calcExpFromTotal() {
+  const t = parseFloat(document.getElementById("eAmount").value);
+  const r = parseFloat(document.getElementById("eRate").value);
+  if (t > 0 && r > 0) document.getElementById("eQty").value = Math.round((t / r) * 100) / 100;
 }
 
 async function addExpense() {
-  const date = document.getElementById("eDate").value || new Date().toISOString().split("T")[0];
-  const site = document.getElementById("eSite").value;
+  const date = document.getElementById("eDate").value || getLocalToday();
   const category = document.getElementById("eCat").value;
+  const qty = document.getElementById("eQty").value;
+  const rate = document.getElementById("eRate").value;
   const amount = document.getElementById("eAmount").value;
-  const note = document.getElementById("eNote").value.trim();
+  const rawNote = document.getElementById("eNote").value.trim();
   if (!amount) return alert("Enter amount");
+  let calcNote = (qty && rate) ? `${qty} × ₹${rate}` : (qty ? `Qty: ${qty}` : "");
+  const fullNote = [calcNote, rawNote].filter(Boolean).join(" | ");
   showLoader(true);
   try {
-    await apiPost({
-      action: "addExpense", date, site, category, amount, note,
-      paidBy: localStorage.getItem("userName")
-    });
+    await apiPost({ action: "addExpense", date, site: currentSite, category, amount, note: fullNote, paidBy: localStorage.getItem("userName") });
+    document.getElementById("eQty").value = "";
+    document.getElementById("eRate").value = "";
     document.getElementById("eAmount").value = "";
     document.getElementById("eNote").value = "";
     await loadData();
     alert(dict[lang].saved);
-  } catch (e) {
-    showLoader(false);
-    alert(dict[lang].netErr);
-  }
+  } catch (e) { showLoader(false); alert(dict[lang].netErr); }
 }
 
 function renderExpenses() {
   const list = document.getElementById("expList");
-  const exps = (DB.expenses || []).slice().reverse().slice(0, 25);
-  if (!exps.length) {
-    list.innerHTML = `<p style="text-align:center;color:#64748b">No expenses recorded yet.</p>`;
-    return;
-  }
+  const exps = DB.expenses.filter(e => e.SiteName === currentSite).slice().reverse().slice(0, 25);
+  if (!exps.length) { list.innerHTML = `<p style="text-align:center;color:#64748b">No expenses yet.</p>`; return; }
   list.innerHTML = exps.map(e => `
     <div class="hisab-row">
-      <div>
-        <b>${e.Category}</b> <span class="badge">${e.SiteName}</span><br>
-        <small>${e.Date}${e.Note ? ' • ' + e.Note : ''} (${e.PaidBy || ''})</small>
-      </div>
+      <div><b>${e.Category}</b><br><small>${e.Date}${e.Note ? ' • ' + e.Note : ''} (${e.PaidBy || ''})</small></div>
       <b style="color:#dc2626">₹${e.Amount}</b>
-    </div>
-  `).join("");
+    </div>`).join("");
 }
 
+// --- HISAB & CALENDAR ---
 function renderHisab() {
-  const site = document.getElementById("hSite").value || "ALL";
-  const workers = DB.workers.filter(w => site === "ALL" || w.SiteName === site);
-  const attFiltered = DB.attendance.filter(a => site === "ALL" || a.SiteName === site);
-  const expFiltered = (DB.expenses || []).filter(e => site === "ALL" || e.SiteName === site);
+  const sDetail = DB.siteDetails.find(s => s.SiteName === currentSite) || { Estimate: 0 };
+  const est = Number(sDetail.Estimate || 0);
+  const sPays = DB.sitePayments.filter(p => p.SiteName === currentSite);
+  const recd = sPays.reduce((s, p) => s + Number(p.Amount || 0), 0);
+  document.getElementById("financeSummary").innerHTML = `
+    <div class="sum-box"><small>${dict[lang].est}</small><b>₹${est}</b></div>
+    <div class="sum-box"><small>${dict[lang].recd}</small><b style="color:#16a34a">₹${recd}</b></div>
+    <div class="sum-box"><small>${dict[lang].left}</small><b style="color:#d97706">₹${est - recd}</b></div>
+  `;
+  document.getElementById("sitePayList").innerHTML = sPays.slice().reverse().slice(0, 5).map(p => `
+    <div class="hisab-row" style="padding:6px 0;">
+      <small>${p.Date}${p.Note ? ' • ' + p.Note : ''}</small>
+      <b style="color:#16a34a; font-size:13px;">+₹${p.Amount}</b>
+    </div>`).join("");
 
+  const attFiltered = DB.attendance.filter(a => a.SiteName === currentSite);
+  const expFiltered = DB.expenses.filter(e => e.SiteName === currentSite);
   const labourTotal = attFiltered.reduce((s, a) => s + Number(a.WageEarned || 0), 0);
   const expTotal = expFiltered.reduce((s, e) => s + Number(e.Amount || 0), 0);
   document.getElementById("siteSummary").innerHTML = `
@@ -614,30 +946,101 @@ function renderHisab() {
     <div class="sum-box"><small>${dict[lang].grandTotal}</small><b style="color:#1e3a8a">₹${labourTotal + expTotal}</b></div>
   `;
 
+  const role = document.getElementById("hRole").value || "ALL";
+  const workers = DB.workers.filter(w => w.SiteName === currentSite && (role === "ALL" || w.Role === role));
   const list = document.getElementById("hisabList");
-  if (!workers.length) {
-    list.innerHTML = `<p style="text-align:center;color:#64748b">No data yet.</p>`;
-    return;
-  }
+  if (!workers.length) { list.innerHTML = `<p style="text-align:center;color:#64748b">No data yet.</p>`; return; }
   list.innerHTML = workers.map(w => {
     const earned = DB.attendance.filter(a => String(a.WorkerID) === String(w.WorkerID)).reduce((s, a) => s + Number(a.WageEarned || 0), 0);
     const paid = DB.payments.filter(p => String(p.WorkerID) === String(w.WorkerID)).reduce((s, p) => s + Number(p.Amount || 0), 0);
     const bal = earned - paid;
+    const roleCls = w.Role === "Mistri" ? "badge-mistri" : "badge-role";
     const rawMsg = lang === "hi"
-      ? `हिसाब - ${w.Name}\nकुल कमाई: ₹${earned}\nखर्ची / भुगतान: ₹${paid}\nबाकी हिसाब: ₹${bal}`
-      : `Hisab - ${w.Name}\nTotal Earned: ₹${earned}\nPaid/Kharchi: ₹${paid}\nBalance Due: ₹${bal}`;
-    const msg = encodeURIComponent(rawMsg);
-    const waLink = `https://wa.me/${w.Phone ? '91' + String(w.Phone).replace(/\D/g,'').slice(-10) : ''}?text=${msg}`;
+      ? `हिसाब - ${w.Name} (${w.Role})\nकुल कमाई: ₹${earned}\nखर्ची / भुगतान: ₹${paid}\nबाकी हिसाब: ₹${bal}`
+      : `Hisab - ${w.Name} (${w.Role})\nTotal Earned: ₹${earned}\nPaid/Kharchi: ₹${paid}\nBalance Due: ₹${bal}`;
+    const waLink = `https://wa.me/${w.Phone ? '91' + String(w.Phone).replace(/\D/g,'').slice(-10) : ''}?text=${encodeURIComponent(rawMsg)}`;
     return `
       <div class="hisab-row">
-        <div>
-          <b>${w.Name}</b> <span class="badge">${w.SiteName}</span><br>
+        <div onclick="openWorkerProfile('${w.WorkerID}')" style="cursor:pointer;">
+          <b>${w.Name}</b> <span class="badge ${roleCls}">${w.Role}</span><br>
           <small>${dict[lang].earned}: ₹${earned} | ${dict[lang].paid}: ₹${paid}</small><br>
           <b style="color:${bal>=0?'#16a34a':'#dc2626'}">${dict[lang].bal}: ₹${bal}</b>
         </div>
         <a class="wa-btn" href="${waLink}" target="_blank">WhatsApp</a>
       </div>`;
   }).join("");
+}
+
+function setCalMode(mode) {
+  calMode = mode;
+  document.getElementById("calModeSite").classList.toggle("active", mode === "site");
+  document.getElementById("calModeWorker").classList.toggle("active", mode === "worker");
+  document.getElementById("calWorkerPicker").classList.toggle("hidden", mode !== "worker");
+  renderCalendar();
+}
+
+function shiftMonth(delta) {
+  calMonth += delta;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  document.getElementById("calMonthLabel").innerText = `${months[calMonth]} ${calYear}`;
+  const firstDow = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const wId = document.getElementById("calWorkerSelect").value;
+
+  let html = ["Su","Mo","Tu","We","Th","Fr","Sa"].map(d => `<div class="cal-dow">${d}</div>`).join("");
+  for (let i = 0; i < firstDow; i++) html += `<div class="cal-day empty"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    let cls = "cal-day";
+    let sub = "";
+    if (calMode === "worker" && wId) {
+      const rec = DB.attendance.find(a => String(a.Date).trim() === dateStr && String(a.WorkerID) === String(wId));
+      if (rec) { cls += " st-" + rec.Status; sub = rec.Status; }
+    } else {
+      const dayRecs = DB.attendance.filter(a => String(a.Date).trim() === dateStr && a.SiteName === currentSite && a.Status !== "A");
+      if (dayRecs.length) { cls += " has-att"; sub = dayRecs.length + "p"; }
+    }
+    if (selectedCalDate === dateStr) cls += " selected";
+    html += `<div class="${cls}" onclick="selectCalDay('${dateStr}')"><span>${d}</span><span class="cal-sub">${sub}</span></div>`;
+  }
+  document.getElementById("calGrid").innerHTML = html;
+  if (selectedCalDate) showCalDayDetails(selectedCalDate);
+  else document.getElementById("calDayDetails").innerHTML = `<span class="hint">Tap any date to see details.</span>`;
+}
+
+function selectCalDay(dateStr) {
+  selectedCalDate = dateStr;
+  renderCalendar();
+}
+
+function showCalDayDetails(dateStr) {
+  const box = document.getElementById("calDayDetails");
+  if (calMode === "worker") {
+    const wId = document.getElementById("calWorkerSelect").value;
+    const rec = DB.attendance.find(a => String(a.Date).trim() === dateStr && String(a.WorkerID) === String(wId));
+    box.innerHTML = rec
+      ? `<b>${dateStr}:</b> Status: <b>${rec.Status}</b> | OT: ${rec.OT_Hours || 0}h (₹${rec.OT_Amount || 0}) | Earned: <b>₹${rec.WageEarned}</b>`
+      : `<b>${dateStr}:</b> No attendance record.`;
+  } else {
+    const dayRecs = DB.attendance.filter(a => String(a.Date).trim() === dateStr && a.SiteName === currentSite);
+    if (!dayRecs.length) { box.innerHTML = `<b>${dateStr}:</b> No attendance saved.`; return; }
+    const roleCounts = {};
+    dayRecs.filter(r => r.Status !== "A").forEach(r => {
+      const w = DB.workers.find(x => String(x.WorkerID) === String(r.WorkerID));
+      const role = w ? w.Role : "Worker";
+      roleCounts[role] = (roleCounts[role] || 0) + 1;
+    });
+    const countStr = Object.entries(roleCounts).map(([k, v]) => `<span class="badge badge-role">${k}: ${v}</span>`).join(" ");
+    const listStr = dayRecs.map(r => `• ${r.WorkerName}: <b>${r.Status}</b> (₹${r.WageEarned})`).join("<br>");
+    box.innerHTML = `<b>${dateStr} Strength:</b> ${countStr || "0 Present"}<div style="margin-top:6px;">${listStr}</div>`;
+  }
 }
 
 function showTab(name, btn) {
@@ -647,10 +1050,7 @@ function showTab(name, btn) {
   btn.classList.add("active");
 }
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
-}
-
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 applyLang();
 if (localStorage.getItem("pin") && localStorage.getItem("userName")) startApp();
 </script>
