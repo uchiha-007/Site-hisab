@@ -228,8 +228,8 @@
       <label data-t="note">Note (Cash / UPI / Details)</label>
       <input id="pNote" placeholder="e.g. Weekly Kharchi / Sunday Majduri">
       <label data-t="upiReceipt">UPI / Payment Screenshot (Optional)</label>
-      <input type="file" id="pReceiptFile" accept="image/*" onchange="handlePhotoPick(this, 'pReceipt')">
-      <img id="pReceiptPrev" class="thumb-sm hidden">
+      <input type="file" id="pReceiptFile" accept="image/*" multiple onchange="handleMultiPhotoPick(this, 'pReceipts', 'pReceiptPrev')">
+      <div id="pReceiptPrev" class="hidden"></div>
       <button class="btn btn-green" onclick="addPayment()" data-t="savePay">Save Payment</button>
     </div>
 
@@ -278,8 +278,8 @@
       <input id="eNote" placeholder="e.g. Ultratech bags / Tractor trolley">
 
       <label data-t="billPhoto">Bill / Receipt Photo (Optional)</label>
-      <input type="file" id="eBillFile" accept="image/*" onchange="handlePhotoPick(this, 'eBill')">
-      <img id="eBillPrev" class="thumb-sm hidden">
+      <input type="file" id="eBillFile" accept="image/*" multiple onchange="handleMultiPhotoPick(this, 'eBills', 'eBillPrev')">
+      <div id="eBillPrev" class="hidden"></div>
 
       <button class="btn btn-primary" onclick="addExpense()" data-t="saveExp">Save Expense</button>
     </div>
@@ -483,7 +483,7 @@ let lang = localStorage.getItem("lang") || "en";
 let DB = { sites: [], siteDetails: [], workers: [], removedWorkers: [], attendance: [], payments: [], expenses: [], sitePayments: [], supervisors: [] };
 let currentSite = null;
 let attState = {};
-let pendingPhotos = { wPhoto: "", wId: "", pReceipt: "", eBill: "", editPhoto: "", editId: "" };
+let pendingPhotos = { wPhoto: "", wId: "", pReceipts: [], eBills: [], editPhoto: "", editId: "" };
 let payType = "Kharchi";
 let periodMode = "daily";
 let calMode = "site";
@@ -741,6 +741,60 @@ function handlePhotoPick(input, key) {
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+
+function handleMultiPhotoPick(input, arrKey, previewId) {
+  const files = Array.from(input.files || []);
+  if (!files.length) return;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 480;
+        const scale = Math.min(1, maxW / img.width);
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        pendingPhotos[arrKey].push(canvas.toDataURL("image/jpeg", 0.5));
+        renderMultiPhotoThumbs(arrKey, previewId);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = "";
+}
+
+function renderMultiPhotoThumbs(arrKey, previewId) {
+  const box = document.getElementById(previewId);
+  if (!box) return;
+  const arr = pendingPhotos[arrKey] || [];
+  if (!arr.length) { box.innerHTML = ""; box.classList.add("hidden"); return; }
+  box.classList.remove("hidden");
+  box.innerHTML = arr.map((imgSrc, idx) => `
+    <div style="position:relative;display:inline-block;margin-right:6px;margin-top:6px;">
+      <img class="thumb-sm" style="margin-top:0;" src="${imgSrc}">
+      <button type="button" onclick="removePendingPhoto('${arrKey}','${previewId}',${idx})" style="position:absolute;top:-6px;right:-4px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:700;cursor:pointer;">✕</button>
+    </div>
+  `).join("");
+}
+
+function removePendingPhoto(arrKey, previewId, idx) {
+  pendingPhotos[arrKey].splice(idx, 1);
+  renderMultiPhotoThumbs(arrKey, previewId);
+}
+
+function extractPhotoList(rowObj, listField, singleField) {
+  if (rowObj[listField]) {
+    try {
+      const parsed = JSON.parse(rowObj[listField]);
+      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+    } catch (e) {}
+  }
+  return rowObj[singleField] ? [rowObj[singleField]] : [];
 }
 
 // --- ATTENDANCE & DAILY REPORT ---
@@ -1171,14 +1225,15 @@ async function addPayment() {
   const w = allW.find(x => String(x.WorkerID) === String(workerId));
   showLoader(true);
   try {
+    const recList = pendingPhotos.pReceipts.slice();
     await apiPost({
-      action: "addPayment", date, workerId, workerName: w ? w.Name : "", amount,
-      note: note || payType, payType, receipt: pendingPhotos.pReceipt || "",
+      action: "addPayment", date, site: currentSite, workerId, workerName: w ? w.Name : "", amount,
+      note: note || payType, payType, receipts: recList, receipt: recList[0] || "",
       paidBy: localStorage.getItem("userName")
     });
     ["pAmount", "pNote", "pReceiptFile"].forEach(id => document.getElementById(id).value = "");
-    document.getElementById("pReceiptPrev").classList.add("hidden");
-    pendingPhotos.pReceipt = "";
+    pendingPhotos.pReceipts = [];
+    renderMultiPhotoThumbs("pReceipts", "pReceiptPrev");
     await loadData(false);
     showToast(dict[lang].saved);
   } catch (e) { alert(dict[lang].netErr); }
@@ -1195,16 +1250,17 @@ function renderRecentPayments() {
     const pType = p.PayType || "Kharchi";
     const badgeCls = pType === "Majduri" ? "badge-majduri" : "badge-kharchi";
     const typeLbl = isHi ? (pType === "Majduri" ? "मज़दूरी" : "खर्ची") : pType;
+    const dStr = String(p.Date).trim();
     const msgTxt = isHi
-      ? `भुगतान रसीद (${typeLbl})\nतारीख: ${String(p.Date).trim()}\nसाइट: ${currentSite}\nनाम: ${p.WorkerName}\nराशि: ₹${p.Amount}${p.Note ? '\nविवरण: ' + p.Note : ''}`
-      : `Payment Receipt (${pType})\nDate: ${String(p.Date).trim()}\nSite: ${currentSite}\nName: ${p.WorkerName}\nAmount: ₹${p.Amount}${p.Note ? '\nNote: ' + p.Note : ''}`;
-    const hasRec = !!p.Receipt;
+      ? `भुगतान रसीद (${typeLbl})\nतारीख: ${dStr}\nसाइट: ${currentSite}\nनाम: ${p.WorkerName}\nराशि: ₹${p.Amount}${p.Note ? '\nविवरण: ' + p.Note : ''}`
+      : `Payment Receipt (${pType})\nDate: ${dStr}\nSite: ${currentSite}\nName: ${p.WorkerName}\nAmount: ₹${p.Amount}${p.Note ? '\nNote: ' + p.Note : ''}`;
+    const imgs = extractPhotoList(p, "Receipts", "Receipt");
     return `
       <div class="hisab-row">
         <div>
           <b>${p.WorkerName}</b> <span class="badge ${badgeCls}">${typeLbl}</span><br>
-          <small>${String(p.Date).trim()}${p.Note ? ' • ' + p.Note : ''}</small>
-          ${hasRec ? `<br><button class="btn btn-sm btn-outline" style="margin-top:4px;" onclick="viewReceiptByMatch('${String(p.Date).trim()}','${String(p.WorkerID)}','${p.Amount}')">View Screenshot</button>` : ""}
+          <small>${dStr}${p.Note ? ' • ' + p.Note : ''}</small>
+          ${imgs.length ? `<br><button class="btn btn-sm btn-outline" style="margin-top:4px;" onclick="viewReceiptByMatch('${dStr}','${String(p.WorkerID)}','${p.Amount}')">Receipts (${imgs.length})</button>` : ""}
         </div>
         <div style="text-align:right;">
           <b style="color:#dc2626">₹${p.Amount}</b><br>
@@ -1215,11 +1271,36 @@ function renderRecentPayments() {
 }
 
 function viewReceiptByMatch(dateStr, wId, amt) {
-  const found = DB.payments.find(p => String(p.Date).trim() === dateStr && String(p.WorkerID) === String(wId) && String(p.Amount) === String(amt) && p.Receipt);
-  if (!found || !found.Receipt) return;
-  document.getElementById("profName").innerText = `Receipt • ${found.WorkerName} (₹${found.Amount})`;
-  document.getElementById("profBody").innerHTML = `<img class="id-preview" style="max-height:420px;" src="${found.Receipt}">`;
+  const found = DB.payments.find(p => String(p.Date).trim() === dateStr && String(p.WorkerID) === String(wId) && String(p.Amount) === String(amt));
+  if (!found) return;
+  const imgs = extractPhotoList(found, "Receipts", "Receipt");
+  if (!imgs.length) return;
+  document.getElementById("profName").innerText = `Receipts • ${found.WorkerName} (₹${found.Amount})`;
+  document.getElementById("profBody").innerHTML = imgs.map((src, idx) => `
+    <div style="margin-bottom:12px;border-bottom:1px solid #e2e8f0;padding-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <small><b>Receipt #${idx + 1}</b></small>
+        <button class="btn btn-sm btn-red" onclick="deleteSavedPaymentReceipt('${dateStr}','${wId}','${amt}',${idx})">Remove</button>
+      </div>
+      <img class="id-preview" style="max-height:360px;" src="${src}">
+    </div>
+  `).join("");
   document.getElementById("profileModal").classList.remove("hidden");
+}
+
+async function deleteSavedPaymentReceipt(dateStr, wId, amt, idx) {
+  if (!confirm("Remove this receipt screenshot?")) return;
+  const found = DB.payments.find(p => String(p.Date).trim() === dateStr && String(p.WorkerID) === String(wId) && String(p.Amount) === String(amt));
+  if (!found) return;
+  const imgs = extractPhotoList(found, "Receipts", "Receipt");
+  imgs.splice(idx, 1);
+  found.Receipts = JSON.stringify(imgs);
+  found.Receipt = imgs[0] || "";
+  renderRecentPayments();
+  if (imgs.length) viewReceiptByMatch(dateStr, wId, amt);
+  else closeProfile();
+  showToast("Removed");
+  try { await apiPost({ action: "updatePaymentPhotos", date: dateStr, workerId: wId, amount: amt, receipts: imgs }); } catch (e) {}
 }
 
 // --- EXPENSES (WITH BILL PHOTO) ---
@@ -1246,13 +1327,14 @@ async function addExpense() {
   const fullNote = [calcNote, rawNote].filter(Boolean).join(" | ");
   showLoader(true);
   try {
+    const billList = pendingPhotos.eBills.slice();
     await apiPost({
       action: "addExpense", date, site: currentSite, category, amount, note: fullNote,
-      paidBy: localStorage.getItem("userName"), billPhoto: pendingPhotos.eBill || ""
+      paidBy: localStorage.getItem("userName"), billPhotos: billList, billPhoto: billList[0] || ""
     });
     ["eQty", "eRate", "eAmount", "eNote", "eBillFile"].forEach(id => document.getElementById(id).value = "");
-    document.getElementById("eBillPrev").classList.add("hidden");
-    pendingPhotos.eBill = "";
+    pendingPhotos.eBills = [];
+    renderMultiPhotoThumbs("eBills", "eBillPrev");
     await loadData(false);
     showToast(dict[lang].saved);
   } catch (e) { alert(dict[lang].netErr); }
