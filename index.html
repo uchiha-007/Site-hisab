@@ -122,7 +122,7 @@
     <h2 style="margin:0; font-size:18px;" data-t="selectSiteTitle">Select a Site</h2>
     <div style="display:flex; gap:6px;">
       <button class="btn btn-sm btn-outline owner-only" onclick="openSupModal()" data-t="manageSups">Supervisors</button>
-      <button class="btn btn-sm btn-outline owner-only" onclick="openLoginLogsModal()">Activity Log</button>
+      <button class="btn btn-sm btn-outline owner-only" onclick="openOnlineNowModal()">Online Now</button>
       <button class="lang-btn" style="background:#e2e8f0;color:#0f172a" onclick="loadData(true)" data-t="refresh">Refresh</button>
     </div>
   </div>
@@ -400,6 +400,18 @@
   </div>
 </div>
 
+
+<!-- OWNER LIVE ONLINE USERS MODAL (EPHEMERAL MEMORY ONLY, NOT IN SHEETS) -->
+<div id="onlineNowModal" class="modal-bg hidden" onclick="if(event.target===this) closeOnlineNowModal()">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="margin:0">Currently Online at Work</h3>
+      <button class="btn btn-sm btn-outline" onclick="closeOnlineNowModal()">✕</button>
+    </div>
+    <div id="onlineNowBody"></div>
+  </div>
+</div>
+
 <!-- SUPERVISOR MANAGEMENT MODAL (OWNER ONLY) -->
 <div id="supModal" class="modal-bg hidden" onclick="if(event.target===this) closeSupModal()">
   <div class="modal-box">
@@ -551,13 +563,14 @@ async function doLogin() {
     localStorage.setItem("userName", name);
     const res = await apiPost({ action: "login" });
     showLoader(false);
-    if (res.ok) {
+    if (res && res.ok === true) {
       localStorage.setItem("userRole", res.role || "Supervisor");
       localStorage.setItem("assignedSite", res.assignedSite || "");
       localStorage.setItem("canSeeOwnerExp", res.canSeeOwnerExp ? "true" : "false");
       startApp();
     } else {
       localStorage.removeItem("pin");
+      localStorage.removeItem("userRole");
       alert("Wrong PIN / गलत पिन");
     }
   } catch (e) {
@@ -1223,21 +1236,29 @@ async function addPayment() {
   if (!workerId || !amount) return alert("Enter amount");
   const allW = DB.workers.concat(DB.removedWorkers || []);
   const w = allW.find(x => String(x.WorkerID) === String(workerId));
-  showLoader(true);
+  const recList = pendingPhotos.pReceipts.slice();
+  const paidBy = localStorage.getItem("userName");
+  DB.payments.push({
+    Date: date, WorkerID: workerId, WorkerName: w ? w.Name : "", Amount: Number(amount),
+    Note: note || payType, PaidBy: paidBy, PayType: payType,
+    Receipt: recList[0] || "", Receipts: JSON.stringify(recList)
+  });
+  ["pAmount", "pNote", "pReceiptFile"].forEach(id => document.getElementById(id).value = "");
+  pendingPhotos.pReceipts = [];
+  renderMultiPhotoThumbs("pReceipts", "pReceiptPrev");
+  renderRecentPayments();
+  renderHisab();
+  renderPeriodView();
+  renderCalendar();
+  renderDailyReportCard();
+  showToast(dict[lang].saved);
   try {
-    const recList = pendingPhotos.pReceipts.slice();
     await apiPost({
       action: "addPayment", date, site: currentSite, workerId, workerName: w ? w.Name : "", amount,
-      note: note || payType, payType, receipts: recList, receipt: recList[0] || "",
-      paidBy: localStorage.getItem("userName")
+      note: note || payType, payType, receipts: recList, receipt: recList[0] || "", paidBy
     });
-    ["pAmount", "pNote", "pReceiptFile"].forEach(id => document.getElementById(id).value = "");
-    pendingPhotos.pReceipts = [];
-    renderMultiPhotoThumbs("pReceipts", "pReceiptPrev");
-    await loadData(false);
-    showToast(dict[lang].saved);
+    localStorage.setItem("siteHisabCache", JSON.stringify(DB));
   } catch (e) { alert(dict[lang].netErr); }
-  showLoader(false);
 }
 
 function renderRecentPayments() {
@@ -1325,20 +1346,28 @@ async function addExpense() {
   if (!amount) return alert("Enter amount");
   let calcNote = (qty && rate) ? `${qty} × ₹${rate}` : (qty ? `Qty: ${qty}` : "");
   const fullNote = [calcNote, rawNote].filter(Boolean).join(" | ");
-  showLoader(true);
+  const billList = pendingPhotos.eBills.slice();
+  const paidBy = localStorage.getItem("userName");
+  const roleTag = isOwner() ? "Owner" : "Supervisor";
+  DB.expenses.push({
+    Date: date, SiteName: currentSite, Category: category, Amount: Number(amount),
+    Note: fullNote, PaidBy: paidBy, AddedByRole: roleTag,
+    BillPhoto: billList[0] || "", BillPhotos: JSON.stringify(billList)
+  });
+  ["eQty", "eRate", "eAmount", "eNote", "eBillFile"].forEach(id => document.getElementById(id).value = "");
+  pendingPhotos.eBills = [];
+  renderMultiPhotoThumbs("eBills", "eBillPrev");
+  renderExpenses();
+  renderHisab();
+  renderDailyReportCard();
+  showToast(dict[lang].saved);
   try {
-    const billList = pendingPhotos.eBills.slice();
     await apiPost({
       action: "addExpense", date, site: currentSite, category, amount, note: fullNote,
-      paidBy: localStorage.getItem("userName"), billPhotos: billList, billPhoto: billList[0] || ""
+      paidBy, billPhotos: billList, billPhoto: billList[0] || ""
     });
-    ["eQty", "eRate", "eAmount", "eNote", "eBillFile"].forEach(id => document.getElementById(id).value = "");
-    pendingPhotos.eBills = [];
-    renderMultiPhotoThumbs("eBills", "eBillPrev");
-    await loadData(false);
-    showToast(dict[lang].saved);
+    localStorage.setItem("siteHisabCache", JSON.stringify(DB));
   } catch (e) { alert(dict[lang].netErr); }
-  showLoader(false);
 }
 
 function renderExpenses() {
@@ -1617,12 +1646,16 @@ function openSupModal() {
     const canSee = String(s.CanSeeOwnerExp || "No") === "Yes";
     return `
       <div class="hisab-row" style="flex-direction:column; align-items:stretch; gap:6px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
           <div>
             <b>${s.Name}</b> <span class="badge badge-role">${s.SiteName || "Unassigned"}</span><br>
             <small>${s.Phone || ''} • Status: <b style="color:${isAct?'#16a34a':'#dc2626'}">${isAct?'Active':'Revoked'}</b></small>
           </div>
-          <button class="btn btn-sm ${isAct?'btn-red':'btn-green'}" onclick="toggleSup('${s.SupID}','active',${!isAct})">${isAct?'Revoke Access':'Allow Access'}</button>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;">
+            <button class="btn btn-sm btn-outline" onclick="editSupDetails('${s.SupID}')">Edit / PIN</button>
+            <button class="btn btn-sm ${isAct?'btn-red':'btn-green'}" onclick="toggleSup('${s.SupID}','active',${!isAct})">${isAct?'Revoke':'Allow'}</button>
+            <button class="btn btn-sm btn-red" onclick="deleteSup('${s.SupID}')">Delete</button>
+          </div>
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:6px 8px; border-radius:6px;">
           <small>Show Father/Owner Expenses: <b>${canSee?'ON':'OFF'}</b></small>
@@ -1678,6 +1711,44 @@ async function addSupervisor() {
   showLoader(false);
 }
 
+
+async function editSupDetails(supId) {
+  const s = (DB.supervisors || []).find(x => String(x.SupID) === String(supId));
+  if (!s) return;
+  const newName = prompt("Supervisor Name:", s.Name);
+  if (newName === null) return;
+  const newSite = prompt("Allotted Site:", s.SiteName || "");
+  if (newSite === null) return;
+  const newPin = prompt("New Login PIN (4+ digits):", "");
+  if (newPin === null || !newPin.trim()) return alert("Enter a PIN to update");
+  const isAct = String(s.Active || "Yes") !== "No";
+  const canSee = String(s.CanSeeOwnerExp || "No") === "Yes";
+  showLoader(true);
+  try {
+    await apiPost({
+      action: "updateSupervisor", supId, name: newName.trim() || s.Name,
+      phone: s.Phone || "", site: newSite.trim() || s.SiteName,
+      pin: newPin.trim(), active: isAct, canSeeOwnerExp: canSee
+    });
+    await loadData(false);
+    openSupModal();
+    showToast("PIN & Details Updated");
+  } catch (e) { alert(dict[lang].netErr); }
+  showLoader(false);
+}
+
+async function deleteSup(supId) {
+  if (!confirm("Permanently delete this supervisor?")) return;
+  DB.supervisors = (DB.supervisors || []).filter(x => String(x.SupID) !== String(supId));
+  openSupModal();
+  showToast("Deleted");
+  try {
+    await apiPost({ action: "deleteSupervisor", supId });
+    await loadData(false);
+    openSupModal();
+  } catch (e) { alert(dict[lang].netErr); }
+}
+
 async function toggleSup(supId, field, value) {
   showLoader(true);
   try {
@@ -1703,7 +1774,8 @@ function sendHeartbeat() {
 }
 
 function openLoginLogsModal() {
-  const logs = (DB.loginLogs || []).slice().reverse();
+  const rawLogs = DB.loginLogs || [];
+  const logs = rawLogs.slice().reverse();
   const seenUsers = {};
   logs.forEach(l => {
     const key = `${l.UserName || 'Unknown'}|${l.Role || ''}`;
@@ -1716,13 +1788,25 @@ function openLoginLogsModal() {
     ? activeSummary.map(u => `<div class="hisab-row"><div><b>${u.name}</b> <span class="badge badge-role">${u.role}</span> ${u.lastSite ? `<span class="badge">${u.lastSite}</span>` : ''}<br><small>Last seen: ${u.lastTime} (${u.lastAction})</small></div></div>`).join("")
     : `<p style="color:#64748b;font-size:13px;">No logins recorded yet.</p>`;
 
-  const recentHtml = logs.slice(0, 30).map(l => `
-    <div class="hisab-row" style="padding:6px 0;">
-      <div><small><b>${l.Timestamp || ''}</b> • <b>${l.UserName || ''}</b> (${l.Role || ''}) — ${l.Action || ''}</small></div>
-      <span class="badge">${l.SiteName || 'ALL'}</span>
-    </div>`).join("");
+  const recentHtml = logs.slice(0, 50).map((l, idx) => {
+    const ts = String(l.Timestamp || "");
+    const un = String(l.UserName || "");
+    const ac = String(l.Action || "");
+    return `
+      <div class="hisab-row" style="padding:6px 0;">
+        <div><small><b>${ts}</b> • <b>${un}</b> (${l.Role || ''}) — ${ac}</small></div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span class="badge">${l.SiteName || 'ALL'}</span>
+          <button class="btn btn-sm btn-outline" style="padding:2px 6px;font-size:10px;" onclick="deleteSingleLog(${idx})">✕</button>
+        </div>
+      </div>`;
+  }).join("");
 
   document.getElementById("loginLogBody").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <small style="color:#64748b;">Showing up to 50 recent entries (Total stored: ${rawLogs.length})</small>
+      ${rawLogs.length ? `<button class="btn btn-sm btn-red" onclick="clearAllLogs()">Clear All</button>` : ""}
+    </div>
     <b style="font-size:13px;">Users Who Logged In</b>
     <div style="margin-top:6px; margin-bottom:14px;">${summaryHtml}</div>
     <b style="font-size:13px;">Recent Login & Usage History</b>
@@ -1731,10 +1815,64 @@ function openLoginLogsModal() {
   document.getElementById("loginLogModal").classList.remove("hidden");
 }
 
+async function deleteSingleLog(revIdx) {
+  const rawLogs = DB.loginLogs || [];
+  const targetIdx = rawLogs.length - 1 - revIdx;
+  const target = rawLogs[targetIdx];
+  if (!target) return;
+  rawLogs.splice(targetIdx, 1);
+  DB.loginLogs = rawLogs;
+  openLoginLogsModal();
+  showToast("Deleted");
+  try {
+    await apiPost({ action: "deleteLoginLogRow", timestamp: target.Timestamp, userName: target.UserName, actionText: target.Action });
+  } catch (e) {}
+}
+
+async function clearAllLogs() {
+  if (!confirm("Clear all login & activity logs?")) return;
+  DB.loginLogs = [];
+  openLoginLogsModal();
+  showToast("Cleared");
+  try {
+    await apiPost({ action: "clearLoginLogs" });
+  } catch (e) {}
+}
+
 function closeLoginLogsModal() { document.getElementById("loginLogModal").classList.add("hidden"); }
 
-setInterval(sendHeartbeat, 120000);
-setTimeout(sendHeartbeat, 4000);
+
+
+
+function pingLivePresence() {
+  if (!localStorage.getItem("pin") || !localStorage.getItem("userName")) return;
+  apiPost({ action: "heartbeat", site: currentSite || assignedSupSite() || "ALL" }).catch(() => {});
+}
+
+function openOnlineNowModal() {
+  const users = DB.onlineUsers || [];
+  const html = users.length
+    ? users.map(u => {
+        const mins = Math.floor(Number(u.agoSec || 0) / 60);
+        const agoTxt = mins > 0 ? `${mins}m ago` : `${Number(u.agoSec || 0)}s ago`;
+        return `<div class="hisab-row"><div><b>${u.name}</b> <span class="badge badge-role">${u.role}</span> <span class="badge">${u.site || "ALL"}</span></div><span class="badge badge-majduri">Online • ${agoTxt}</span></div>`;
+      }).join("")
+    : `<p style="color:#64748b;font-size:13px;">No active sessions detected in the last few minutes. Tap Refresh to check live status.</p>`;
+
+  document.getElementById("onlineNowBody").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <small style="color:#64748b;">Live active users (not saved to Google Sheets)</small>
+      <button class="btn btn-sm btn-outline" onclick="loadData(true).then(openOnlineNowModal)">Refresh</button>
+    </div>
+    <div>${html}</div>
+  `;
+  document.getElementById("onlineNowModal").classList.remove("hidden");
+}
+
+function closeOnlineNowModal() { document.getElementById("onlineNowModal").classList.add("hidden"); }
+
+setInterval(pingLivePresence, 120000);
+setTimeout(pingLivePresence, 2500);
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 applyLang();
